@@ -42,7 +42,7 @@ Restart DSH and reload the page afterwards.
 Pin a version:
 
 ```sh
-dsh plugin --profile web add github:qiao-obs/dsh-advisor#v0.1.0
+dsh plugin --profile web add github:qiao-obs/dsh-advisor#v0.1.1
 ```
 
 Remove:
@@ -58,7 +58,7 @@ dsh plugin --profile web remove dsh-advisor
 install with `incompatible-version` when it does not hold. To wave it through:
 
 ```sh
-dsh plugin allow-version dsh-advisor@0.1.0 --profile web
+dsh plugin allow-version dsh-advisor@0.1.1 --profile web
 ```
 
 ## Configuration
@@ -74,7 +74,7 @@ To change behaviour, edit `cordis.patch.yml` in the profile (under
     - id: dsh-advisor
       name: dsh-advisor
       config:
-        maxAdviceTokens: 400          # output cap per consultation
+        maxAdviceTokens: 1000         # output cap per consultation (~4000 chars)
         maxConsultationsPerRun: 8     # hard ceiling on consultations for this run
         consultDeadlineMs: 60000      # total budget for one consultation
         authorizedScopes: [plan, diff, test, general]
@@ -122,20 +122,27 @@ object spread, and that is how a ceiling silently stops existing.
 }
 ```
 
-Returns `{ outcome, consultationId, advice, cancelled, timedOut, adviceWithheld, budgetRemaining }`.
+Returns `{ outcome, consultationId, advice, cancelled, timedOut, adviceWithheld, truncated, budgetRemaining }`.
 
 `outcome` is one of:
 
 | Value | Meaning |
 | --- | --- |
-| `advised` | usable advice came back |
+| `advised` | usable advice came back (**including advice cut off by the output budget** — see `truncated`) |
 | `no_advice` | the advisor answered `NO_ADVICE`; that is a normal completion |
 | `refused_no_consent` | this `focus` was not pre-authorized and there is no human seam (headless). **No request was issued** |
 | `budget_exhausted` | the run ceiling was reached. **No request was issued, nothing was spent** |
-| `failed` | not configured, no finish, cancelled, timed out, or unusable content |
+| `failed` | not configured, the stream ended with `aborted`/`error`, cancelled, timed out, or unusable content |
 
 `cancelled` and `timedOut` are reported separately and never impersonate each
 other: a caller cancelling is not a timeout, and a timeout is not a cancel.
+
+`truncated` is reported on its own: `true` means the advisor hit its output
+budget (`finish.kind === 'max-tokens'`) mid-answer. **`advice` still holds the
+part it actually said** — not a character is dropped — and the caller should
+treat the end as missing, not as its conclusion. It is not `failed` because
+being cut off says nothing about whether there was anything to say.
+`aborted`/`error` still end as `failed`: there is no "how far it got" to keep.
 
 ### Consent
 
@@ -178,7 +185,7 @@ Three suites, all offline — no provider, no network, no cost:
 
 | File | Covers |
 | --- | --- |
-| `tests/plugin.test.mjs` | registration surface, call discipline, budget, cancel/timeout/unload, unconfigured mount |
+| `tests/plugin.test.mjs` | registration surface, call discipline, budget, cancel/timeout/unload, unconfigured mount, delivering a truncated answer |
 | `tests/advice.test.mjs` | the advice protocol, the real regression corpus, usage classification |
 | `tests/config.test.mjs` | config precedence, manifest and patch self-consistency |
 
@@ -194,6 +201,13 @@ Three suites, all offline — no provider, no network, no cost:
   never turns an unknown into a zero.
 - **`NO_ADVICE` is not followed up.** If the advisor says there is nothing to
   say, the consultation ends.
+- **A cut-off answer is half an answer.** Hitting `maxAdviceTokens` (default
+  1000, ~4000 characters) still returns the text and sets `truncated`, but the
+  end is missing: the sentence that was going to qualify everything before it
+  may be exactly what the budget removed. The first real consultation after a
+  clean install hit this — the old 400-token default threw away 1776 characters
+  of usable advice. Nothing is thrown away now, but "not finished" is still
+  something only the caller can handle.
 - **No retries.** A failed request is `failed`; whether to try again is the
   working model's decision, not the plugin's.
 - **`injectAdvice: false` still costs money**: it performs the call and withholds

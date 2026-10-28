@@ -17,7 +17,15 @@ export const ADVICE = 'Check the caller first. Then confirm the empty object is 
  * aborted. That is what makes the cancellation test a real cancellation test
  * instead of a race the fake always loses.
  */
-export function makeFakeLlm({ mode = 'normal', text = ADVICE, usage = null } = {}) {
+export function makeFakeLlm({
+  mode = 'normal',
+  text = ADVICE,
+  usage = null,
+  // What the transport says about how the stream ended. `max-tokens` is the
+  // interesting one: the model was still talking when its budget ran out, which
+  // is a different ending from `error` and has to be reported differently.
+  finishKind = 'stop',
+} = {}) {
   const state = { calls: 0, requests: [], mode }
   const llm = {
     state,
@@ -46,7 +54,7 @@ export function makeFakeLlm({ mode = 'normal', text = ADVICE, usage = null } = {
         }
         yield { type: 'text-delta', text }
         if (usage) yield { type: 'usage', usage }
-        yield { type: 'finish', reason: { kind: 'stop' } }
+        yield { type: 'finish', reason: { kind: finishKind } }
       })()
     },
   }

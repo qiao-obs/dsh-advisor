@@ -137,6 +137,33 @@ test('an over-budget result still satisfies the declared output schema', async (
   assert.notEqual(value.consultationId, '')
 })
 
+test('every exit path reports the same result keys', async () => {
+  // A caller reads `.truncated` on the value it got back. If one path omits the
+  // key, `undefined` and `false` become two different things to reason about,
+  // and the caller has to know which exit it came from to read the same field.
+  const keysOf = (value) => Object.keys(value).sort()
+
+  const unconfigured = await createAdvisor({
+    llm: makeFakeLlm(),
+    config: { outputDir: null },
+  }).tool.execute({ question: 'q', focus: 'plan' }, execFor('call-16'))
+
+  const overBudget = await createAdvisor({
+    llm: makeFakeLlm(),
+    config: { provider: 'p', model: 'm', maxConsultationsPerRun: 0, outputDir: null },
+  }).tool.execute({ question: 'q', focus: 'plan' }, execFor('call-17'))
+
+  const answered = await createAdvisor({
+    llm: makeFakeLlm(),
+    config: { provider: 'p', model: 'm', outputDir: null },
+  }).tool.execute({ question: 'q', focus: 'plan' }, execFor('call-18'))
+
+  assert.deepEqual(keysOf(unconfigured), keysOf(answered))
+  assert.deepEqual(keysOf(overBudget), keysOf(answered))
+  assert.equal(unconfigured.truncated, false)
+  assert.equal(overBudget.truncated, false)
+})
+
 test('a cancel is reported as a cancel, never as a timeout', async () => {
   const llm = makeFakeLlm({ mode: 'hang' })
   const tools = makeFakeTools()
@@ -238,4 +265,74 @@ test('advice can be withheld while still paying for the call', async () => {
   assert.equal(llm.state.calls, 1)
   assert.equal(value.advice, '')
   assert.equal(value.adviceWithheld, true)
+})
+
+test('an answer cut off by the output budget still reaches the caller', async () => {
+  // A real consultation on 2026-10-28 hit the old 400-token default: 1776
+  // characters of usable guidance were thrown away and replaced by the sentence
+  // "the advisor stopped with max-tokens". The caller had paid for it and never
+  // saw a word. Being cut off is a property of the text, not proof there is none.
+  const cutOff = 'Start by checking the caller. Then handle the empty object. The third step is'
+  const llm = makeFakeLlm({ text: cutOff, finishKind: 'max-tokens' })
+  const advisor = createAdvisor({
+    llm,
+    config: { provider: 'p', model: 'm', outputDir: null },
+  })
+  const value = await advisor.tool.execute({ question: 'q', focus: 'plan' }, execFor('call-11'))
+
+  assert.equal(value.outcome, 'advised', 'a cut-off answer is still an answer')
+  assert.equal(value.advice, cutOff, 'the text must survive the cut-off verbatim')
+  assert.equal(value.truncated, true, 'and the caller must be told it was cut off')
+})
+
+test('a cut-off answer says so where the caller reads it', async () => {
+  const cutOff = 'Check the caller first. Then confirm the empty object'
+  const llm = makeFakeLlm({ text: cutOff, finishKind: 'max-tokens' })
+  const advisor = createAdvisor({ llm, config: { provider: 'p', model: 'm', outputDir: null } })
+  const value = await advisor.tool.execute({ question: 'q', focus: 'plan' }, execFor('call-12'))
+  const rendered = advisor.tool.output.render({}, value)
+    .map((part) => part.text)
+    .join('')
+
+  assert.ok(rendered.includes(cutOff), 'the advice itself is shown')
+  assert.match(rendered, /output budget/u, 'and the note explains why it stops mid-thought')
+})
+
+test('a complete answer is not described as cut off', async () => {
+  const llm = makeFakeLlm()
+  const advisor = createAdvisor({ llm, config: { provider: 'p', model: 'm', outputDir: null } })
+  const value = await advisor.tool.execute({ question: 'q', focus: 'plan' }, execFor('call-13'))
+  const rendered = advisor.tool.output.render({}, value)
+    .map((part) => part.text)
+    .join('')
+
+  assert.equal(value.truncated, false)
+  assert.doesNotMatch(rendered, /output budget/u)
+})
+
+test('other non-stop endings are still not advice', async () => {
+  // Only the output budget deserves a second look. An `error` finish means the
+  // stream broke, and calling that an opinion would be inventing one.
+  const llm = makeFakeLlm({ text: 'partial', finishKind: 'error' })
+  const advisor = createAdvisor({ llm, config: { provider: 'p', model: 'm', outputDir: null } })
+  const value = await advisor.tool.execute({ question: 'q', focus: 'plan' }, execFor('call-14'))
+
+  assert.equal(value.outcome, 'failed')
+  assert.equal(value.truncated, false)
+  assert.match(value.advice, /error/u)
+})
+
+test('the default output budget does not fight the character ceiling', async () => {
+  // ADVICE_PROTOCOL.maxChars accepts 4000 characters of advice. A default token
+  // budget that cannot produce that many turns the transport ceiling into the
+  // real one, silently, so the two must not disagree.
+  const llm = makeFakeLlm()
+  const advisor = createAdvisor({ llm, config: { provider: 'p', model: 'm', outputDir: null } })
+  await advisor.tool.execute({ question: 'q', focus: 'plan' }, execFor('call-15'))
+
+  assert.ok(
+    llm.state.requests[0].maxTokens >= 1000,
+    `the default budget (${llm.state.requests[0].maxTokens}) is below the ~1000 tokens 4000 characters needs`,
+  )
+  assert.equal(advisor.config.maxAdviceTokens, 1000)
 })

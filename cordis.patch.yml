@@ -9,7 +9,7 @@
     - id: dsh-advisor
       name: dsh-advisor
       config:
-        maxAdviceTokens: 400
+        maxAdviceTokens: 1000
         maxConsultationsPerRun: 8
         consultDeadlineMs: 60000
         authorizedScopes:

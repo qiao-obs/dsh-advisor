@@ -34,7 +34,7 @@ dsh plugin --profile web add github:qiao-obs/dsh-advisor
 固定版本：
 
 ```sh
-dsh plugin --profile web add github:qiao-obs/dsh-advisor#v0.1.0
+dsh plugin --profile web add github:qiao-obs/dsh-advisor#v0.1.1
 ```
 
 移除：
@@ -48,7 +48,7 @@ dsh plugin --profile web remove dsh-advisor
 本包的 `engines.dsh` 是 `^0.2.0-rc.1`。宿主会用 `semver.satisfies(runtime, range, { includePrerelease: true })` 判定；不满足时安装被 `incompatible-version` 拒绝。确需豁免可以：
 
 ```sh
-dsh plugin allow-version dsh-advisor@0.1.0 --profile web
+dsh plugin allow-version dsh-advisor@0.1.1 --profile web
 ```
 
 ## 配置
@@ -62,7 +62,7 @@ dsh plugin allow-version dsh-advisor@0.1.0 --profile web
     - id: dsh-advisor
       name: dsh-advisor
       config:
-        maxAdviceTokens: 400          # 每次咨询的输出上限
+        maxAdviceTokens: 1000         # 每次咨询的输出上限（约 4000 字符，与协议上限对齐）
         maxConsultationsPerRun: 8     # 本次会话最多发起几次咨询，超了不花钱
         consultDeadlineMs: 60000      # 单次咨询的总预算
         authorizedScopes: [plan, diff, test, general]
@@ -104,19 +104,21 @@ dsh plugin allow-version dsh-advisor@0.1.0 --profile web
 }
 ```
 
-返回 `{ outcome, consultationId, advice, cancelled, timedOut, adviceWithheld, budgetRemaining }`。
+返回 `{ outcome, consultationId, advice, cancelled, timedOut, adviceWithheld, truncated, budgetRemaining }`。
 
 `outcome` 只能是：
 
 | 值 | 含义 |
 | --- | --- |
-| `advised` | 拿到可用意见 |
+| `advised` | 拿到可用意见（**含被输出上限截断的情况**，见下面 `truncated`） |
 | `no_advice` | 顾问明确回了 `NO_ADVICE`，这也是一次正常结束 |
 | `refused_no_consent` | 该 `focus` 未获授权，且没有可以问人的通道（headless）。**没有发出请求** |
 | `budget_exhausted` | 到达本次会话的咨询上限。**没有发出请求，不花钱** |
-| `failed` | 没配置、流没走完、被取消、超时、或者返回内容不可用 |
+| `failed` | 没配置、流被 `aborted`/`error` 打断、被取消、超时、或者返回内容不可用 |
 
 `cancelled` 与 `timedOut` 分开报，不互相冒充：调用方取消不是超时，超时也不是取消。
+
+`truncated` 单独报：为 `true` 表示顾问撞上输出上限（`finish.kind === 'max-tokens'`）被截断。**这时 `advice` 仍然是它真正说出来的那部分**，一个字都不会丢；调用方应把结尾当作缺失，不要当成结论。之所以不判 `failed`：截断只说明它没说完，不说明它没说。`aborted`/`error` 仍然算 `failed`，因为那两种情况连「它说到哪」都不成立。
 
 ### 授权（consent）
 
@@ -149,7 +151,7 @@ npm test
 
 | 文件 | 覆盖 |
 | --- | --- |
-| `tests/plugin.test.mjs` | 注册面、调用纪律、预算、取消/超时/卸载、未配置 |
+| `tests/plugin.test.mjs` | 注册面、调用纪律、预算、取消/超时/卸载、未配置、截断仍交付 |
 | `tests/advice.test.mjs` | 意见协议、真实回归语料、用量分类 |
 | `tests/config.test.mjs` | 配置解析优先级、清单与 patch 的自洽 |
 
@@ -159,6 +161,7 @@ npm test
 - **`userQuestions` 授权分支未在真实宿主上走过**：headless 没有那个服务，实测覆盖的是「没有通道 → 拒绝」这一半。
 - **没有真实的计价依据**。宿主侧对未知 provider 返回 `NO_COST`（`{input:0,output:0,...}`），那不是「免费」，是「没有这个事实」。所以本插件只报 token 读数，不报钱，也不把未知当 0。
 - **`NO_ADVICE` 之后不会追问**。顾问说「没什么可说」，这次咨询就结束了。
+- **截断的建议只能当半份用**。撞上 `maxAdviceTokens` 时（默认 1000，约 4000 字符）文本照给、`truncated` 标真，但结尾是断的：它可能正要否定前面的判断，而那半句已经被上限切掉了。真实第一次干净安装的咨询就撞过这个——旧的默认 400 token 把 1776 字符的可用建议整段丢弃，现在不会再丢，但「没说完」这件事只能由调用方处理。
 - **没有重试**。请求失败就是 `failed`，要不要再来一次由主力模型自己判断——插件不替它决定。
 - **`injectAdvice: false` 仍然花钱**：它只是把意见扣下不给主力看，用来单独测成本。
 - **取消与超时的边界靠 `cancelGraceMs`**（默认 300 ms）：超时后给流一点时间自己收尾，收不到就直接判 `timed-out`，并记下 `waitEndedAs`。

@@ -1,6 +1,6 @@
 {
   "name": "dsh-advisor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Second-opinion consultations for DeepSeek Harness sessions: one tool, consulted only when the working model decides a decision is worth challenging.",
   "type": "module",
   "main": "lib/index.js",
