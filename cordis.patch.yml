@@ -1,0 +1,19 @@
+# Applied by the profile composer (dsh.bundle.patch) when this package is added
+# to a profile. Rows resolve by package name, so the installed copy is what
+# boots; the config below is what a fresh install gets before anyone edits it.
+#
+# Nothing here picks a provider. `provider`/`model` stay unset and the plugin
+# reads the session's own default model, so installing it cannot redirect a
+# session's work to a model the user did not choose.
+- insert:
+    - id: dsh-advisor
+      name: dsh-advisor
+      config:
+        maxAdviceTokens: 400
+        maxConsultationsPerRun: 8
+        consultDeadlineMs: 60000
+        authorizedScopes:
+          - plan
+          - diff
+          - test
+          - general
