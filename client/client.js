@@ -1453,13 +1453,19 @@ window.__ModuleLoader__.load({
         test: t('materialTest'),
       };
 
+      // Editing a question or switching sessions invalidates the approval.
+      useEffect(() => {
+        setPreview(null);
+        setShowText(false);
+      }, [question, focus, sessionId, view.settings]);
+
       async function doPreview() {
         setBusy(true);
         setError(null);
         try {
           const value = await rpcCall('materials.preview', {
             sessionId,
-            request: { question: question || '（预览）', focus },
+            request: { question: question.trim(), focus },
           });
           setPreview(value);
           setShowText(Boolean(value && value.ok));
@@ -1471,12 +1477,16 @@ window.__ModuleLoader__.load({
       }
 
       async function doStart() {
+        if (!preview?.ok) {
+          await doPreview();
+          return;
+        }
         setBusy(true);
         setError(null);
         try {
           const value = await rpcCall('consult.start', {
             sessionId,
-            request: { question: question.trim(), focus },
+            request: { question: question.trim(), focus, expectedDigest: preview.digest, expectedTarget: preview.target },
           });
           if (value && value.accepted) {
             // Open the card: the person just asked for this, so the result must
@@ -1492,6 +1502,8 @@ window.__ModuleLoader__.load({
             if (reload) await reload();
           } else if (value && value.record && value.record.error) {
             setError(value.record.error.message || t('stateRefused'));
+            setPreview(null);
+            setShowText(false);
           }
         } catch (err) {
           setError(String(err && err.message ? err.message : err));
@@ -1502,7 +1514,9 @@ window.__ModuleLoader__.load({
 
       if (!consultOpen) return null;
 
-      const resolvedLabel = view.resolved && view.resolved.label ? view.resolved.label : t('modelMissing');
+      const resolvedLabel = preview?.target?.provider && preview?.target?.model
+        ? `${preview.target.provider} / ${preview.target.model}`
+        : view.resolved && view.resolved.label ? view.resolved.label : t('modelMissing');
       const scope = view.settings ? view.settings.materials : null;
 
       return h(
@@ -1527,6 +1541,7 @@ window.__ModuleLoader__.load({
             value: question,
             placeholder: t('consultQuestionPlaceholder'),
             onChange: (event) => setQuestion(event.target.value),
+            disabled: busy,
           }),
         ),
         h(
@@ -1550,7 +1565,7 @@ window.__ModuleLoader__.load({
           { className: 'dsha-row' },
           h(
             'button',
-            { className: 'dsha-btn tiny ghost', type: 'button', onClick: doPreview, disabled: busy },
+            { className: 'dsha-btn tiny ghost', type: 'button', onClick: () => showText ? setShowText(false) : preview?.ok ? setShowText(true) : doPreview(), disabled: busy || question.trim() === '' },
             showText ? t('hideMaterials') : t('viewMaterials'),
           ),
           h('span', { className: 'dsha-spacer' }),
@@ -1562,7 +1577,7 @@ window.__ModuleLoader__.load({
               onClick: doStart,
               disabled: busy || question.trim() === '',
             },
-            busy ? t('starting') : t('startConsult'),
+            busy ? t('starting') : preview?.ok ? t('startConsult') : t('viewMaterials'),
           ),
         ),
         preview && !preview.ok
