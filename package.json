@@ -1,20 +1,27 @@
 {
   "name": "dsh-advisor",
-  "version": "0.1.1",
-  "description": "Second-opinion consultations for DeepSeek Harness sessions: one tool, consulted only when the working model decides a decision is worth challenging.",
+  "version": "0.2.1",
+  "description": "Second-opinion consultations for DeepSeek Harness sessions: a desktop settings page, an in-session consult entry, and a live consultation card that keeps materials, model, state and verdict visible.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./client": "./client/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
   },
   "files": [
     "lib",
+    "client",
+    "locale",
     "cordis.patch.yml",
+    "icon.svg",
     "README.md",
     "README.en.md",
-    "LICENSE"
+    "LICENSE",
+    "docs"
   ],
   "keywords": [
     "deepseek-harness",
@@ -46,6 +53,15 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
     }
   },
   "peerDependencies": {

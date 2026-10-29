@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Advisor",
+    "description": "Ask a second model to review a plan, a diff or a failing test — with the materials, the model and the result visible in the session."
+  }
+}

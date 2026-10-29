@@ -13,19 +13,120 @@
 
 ## What it is
 
-`dsh-advisor` adds one tool, `advisor_consult`, to a DeepSeek Harness session.
-The model that is already working can call it to send **one specific decision**
-to a second model and get an opinion back.
+`dsh-advisor` gives a DeepSeek Harness session **a second point of view**: pick a
+model and a material scope in the settings page, press "consult the advisor" in
+the composer, and send **one specific decision** to a second model — while
+keeping visible the whole way who was asked, what was sent, and what the opinion
+actually changed.
+
+Two entry points share the same state and the same records:
+
+- **The person in the session**: the "consult" button in the composer opens a
+  lightweight confirm area (subject / model / materials / preview), and the answer
+  lands in a collapsible in-session card. You never leave the conversation.
+- **The working model**: one tool, `advisor_consult`. The model that is already
+  working can call it to send the same decision out.
 
 It is not an automatic reviewer and not a gate in a pipeline:
 
 - **Nothing fires on its own.** No timer, no call per step, no second-round
-  follow-up. One tool call is one plugin-initiated model call, which is what
+  follow-up. One consultation is one plugin-initiated model call, which is what
   makes the cost attributable.
-- **No provider is baked in.** The plugin does nothing until the working model
-  calls it, and then it consults **the model this session already selected**.
-- **"Don't change anything" is a valid answer.** The most useful thing an
-  advisor does is often to give a reason to stop, not a reason to keep going.
+- **No provider is baked in.** It follows the session's current model by default;
+  installing a plugin should not send a session's content to a provider the user
+  never chose.
+- **"Don't change anything" is a valid answer.** "No new advice" only means this
+  round found nothing new — **it does not mean the task was verified.**
+
+## Desktop edition (v0.2)
+
+v0.1 was a tool only. v0.2 makes it a desktop plugin you can look at. Four things
+stay visible at all times: **why a consultation happened, who is being asked,
+what was sent, and what the opinion changed.**
+
+### 1. Settings (Settings → Advisor)
+
+It reuses the host settings system rather than shipping its own page:
+
+| Block | Content |
+| --- | --- |
+| **Enable the advisor** | Master switch, on by default. When off, the composer entry, the card and the header chip all disappear, `consult.start` is refused (`reason:'disabled'`) and **no model request is ever made**; stored consultations stay readable. |
+| Status | No model / **usable** / misconfigured. **"Usable" only means it can run, not that it is running.** It also shows the model that would actually be used. |
+| Mode | Only when I ask (default) / after the model suggests it, I confirm / authorised for this session. The last two need one explicit grant; after that there are no repeated prompts. |
+| Advisor model | Follow the session model by default, or pick a provider + model from the host's real catalogue. |
+| Material scope | This question / selection / current plan / current changes / test output, toggled per item. **The full text can be previewed before sending.** |
+| Delivery | Show to me only / return to the working model for verification. |
+| Advanced | Advice token ceiling, per-consultation timeout, per-session call cap, per-session record retention. |
+| Connection check | **A request is only sent when the user presses it** — an 8-token ping that reports the actual model and round trip. |
+
+### 2. In-session entry
+
+A "consult" button at the left of the composer. Consulting with a code selection
+focuses on that selection by default; the whole history is not silently attached.
+The confirm area expands in place above the composer with the subject, the model,
+a material summary, and "preview / start / cancel".
+
+### 3. Visible progress
+
+A collapsible in-session card whose states all come from real events — **no
+invented percentage**. It sits below the composer, so it starts **collapsed to a
+single summary line** (state + first 30 characters of the question) and caps
+itself at `38vh` with internal scrolling when expanded, instead of pushing the
+conversation off screen:
+
+`awaiting confirmation` → `request sent (waiting N s · cancel)` → `returned` /
+`cut off — incomplete advice` / `the advisor raised nothing new` / `timed out` /
+`failed` / `cancelled`
+
+A low-noise chip in the session header: `Advisor: manual`, `Advisor working`,
+`2 consultations in this session`.
+
+Every terminal state carries a caveat that only claims what the evidence
+supports:
+
+- cut off → "The text is kept but the ending is missing; do not read it as a complete review."
+- nothing new → "This does not mean the task was verified."
+- cancelled → "This only ended the local wait; it is not evidence that the provider stopped generating."
+- failed → the provider's real reason (for example `UNKNOWN_MODEL pi-ai provider "llmgo" has no configured model "no-such-model-v0"`).
+
+### 4. Result surface
+
+A one-or-two-line conclusion first, the full opinion and its evidence on expand.
+Each finding answers four things: **what is wrong / what the evidence is (and which
+part is an assumption) / how to verify it / whether it widens the scope.**
+
+Actions: `have the model verify` / `mark handled` / `the model says it does not
+hold` / `leave it for now` / `view the raw opinion`. There is deliberately **no
+vague one-click accept.**
+
+Three facts are recorded separately instead of collapsing into "accepted":
+
+- `verification`: unconfirmed / confirmed by the model / rejected by the model / inconclusive
+- `disposition`: none / handled per the advice / deferred
+- `delivered` / `not delivered`
+
+**Rejecting an opinion after checking it is a successful outcome** — it proves the
+advice was read and judged.
+
+### 5. Material version binding
+
+Each consultation stores a content digest (`sha256:`, first 32 hex chars) of the
+paths it actually sent. When the card is shown again, only those paths are
+re-hashed; if one moved it says
+
+> Based on an older version — needs re-checking
+> Changed materials: D:/DeepSeekHarness/工作区/.tmp/staleness-probe.txt
+
+Not the whole workspace: hashing everything would flag "changed" whenever anything
+anywhere moved, which trains people to ignore the marker.
+
+### 6. History and session isolation
+
+"History (N)" on the card replays every record of this session, newest first.
+Records live in `<DSH_HOME>/dsh-advisor/sessions/<sessionId>.json` — **one file
+per session**, so switching sessions cannot mix them. Settings live in
+`<DSH_HOME>/dsh-advisor/settings.json` and survive a restart; with the plugin off
+there are no automatic calls at all (there were none to begin with).
 
 ## Install
 
@@ -38,6 +139,27 @@ dsh plugin --profile web add github:qiao-obs/dsh-advisor
 
 Replace `web` with the profile you use (the desktop app's is usually `desktop`).
 Restart DSH and reload the page afterwards.
+
+Pin a version:
+
+```sh
+dsh plugin --profile web add github:qiao-obs/dsh-advisor#v0.2.1
+```
+
+Install from a local directory:
+
+```sh
+dsh plugin --profile desktop add file:D:/path/to/dsh-advisor
+```
+
+Remove:
+
+```sh
+dsh plugin --profile web remove dsh-advisor
+```
+
+Then open **Settings → Advisor**, choose the advisor model (following the session
+model is usually right), and use the "consult" button in the composer.
 
 Pin a version:
 
@@ -58,16 +180,16 @@ dsh plugin --profile web remove dsh-advisor
 install with `incompatible-version` when it does not hold. To wave it through:
 
 ```sh
-dsh plugin allow-version dsh-advisor@0.1.1 --profile web
+dsh plugin allow-version dsh-advisor@0.2.1 --profile web
 ```
 
 ## Configuration
 
-It works as installed: with no `provider` set, the plugin reads the session's own
-default model.
+**Since v0.2 the everyday settings need no file editing**: what you change under
+Settings → Advisor is persisted to `<DSH_HOME>/dsh-advisor/settings.json` and
+survives a restart.
 
-To change behaviour, edit `cordis.patch.yml` in the profile (under
-`~/.dsh/profiles/<name>/`):
+`cordis.patch.yml` keeps the install-time defaults and the tool-side budget:
 
 ```yaml
 - insert:
@@ -86,6 +208,13 @@ To change behaviour, edit `cordis.patch.yml` in the profile (under
 leaving them unset means the session's current default is used. That trade is
 deliberate: installing a plugin should not send a session's work to a provider
 its user never picked.
+
+Two layers, no overwriting:
+
+| Layer | Governs | Changed by |
+| --- | --- | --- |
+| `settings.json` | advisor model, material scope, mode, delivery, timeout / caps / retention | the user, in the settings page |
+| `cordis.patch.yml` / env | install defaults, tool-side budget and consent, run record directory | whoever installs it |
 
 ### Environment variables
 
@@ -188,33 +317,45 @@ Three suites, all offline — no provider, no network, no cost:
 | `tests/plugin.test.mjs` | registration surface, call discipline, budget, cancel/timeout/unload, unconfigured mount, delivering a truncated answer |
 | `tests/advice.test.mjs` | the advice protocol, the real regression corpus, usage classification |
 | `tests/config.test.mjs` | config precedence, manifest and patch self-consistency |
+| `tests/materials.test.mjs` | material collection: current plan vs. an old todo list, over-budget truncation, reproducibility, unreadable means "absent with a reason", settings and explicit opt-out win |
+
+99 tests, all green. **The UI has no automated tests**: v0.2 was accepted by
+clicking through it in the real desktop app, on the grounds that the plugin's
+states come from host events and a fake DOM can only assert against the mock you
+just wrote. The acceptance record is in `docs/acceptance-v0.2.md`.
 
 ## Known limitations
 
-- **The full chain has only been exercised on a headless host.** The web and
-  desktop-app surfaces are untested.
-- **The `userQuestions` consent branch has never run on a real host**: headless
-  has no such service, so what is covered is the "no seam → refuse" half.
+- **The tested environment is the DSH desktop app** (profile `desktop`, host
+  0.2.1-rc.3). Web CLI and headless share the same client bundle but have not
+  been walked through item by item there.
+- **The tool-side `userQuestions` consent branch still has not run on a real
+  host**: what is covered is the "no seam → refuse" half. The v0.2 user-side
+  consultation takes a different path (the user presses "start" in the confirm
+  area) and does not depend on that seam.
 - **There is no real pricing.** The host returns `NO_COST`
   (`{input:0,output:0,...}`) for providers it does not know; that is the absence
   of a fact, not a rate. The plugin therefore reports tokens and never money, and
   never turns an unknown into a zero.
-- **`NO_ADVICE` is not followed up.** If the advisor says there is nothing to
-  say, the consultation ends.
+- **`NO_ADVICE` is not followed up automatically.** If the advisor says there is
+  nothing to say, the consultation ends; sending more material is an explicit act
+  by the user or the working model.
 - **A cut-off answer is half an answer.** Hitting `maxAdviceTokens` (default
   1000, ~4000 characters) still returns the text and sets `truncated`, but the
-  end is missing: the sentence that was going to qualify everything before it
-  may be exactly what the budget removed. The first real consultation after a
-  clean install hit this — the old 400-token default threw away 1776 characters
-  of usable advice. Nothing is thrown away now, but "not finished" is still
-  something only the caller can handle.
-- **No retries.** A failed request is `failed`; whether to try again is the
-  working model's decision, not the plugin's.
+  end is missing. The card says "cut off — incomplete advice" for exactly that
+  reason.
+- **No retries.** A failed request is `failed`; whether to try again belongs to
+  the user or the working model.
 - **`injectAdvice: false` still costs money**: it performs the call and withholds
   the text, which exists to measure cost in isolation.
 - **Cancel and timeout share a `cancelGraceMs` window** (default 300 ms): after a
   deadline the stream gets a moment to end itself; if it does not, the
   consultation is `timed-out` and `waitEndedAs` records how the wait ended.
+- **Version binding only covers the paths that were actually sent.** Editing a
+  file that was never part of the materials will not mark the card stale — which
+  is correct, and easy to misread as "everything is watched".
+- **"Based on an older version" never re-runs anything.** It only marks; asking
+  again is a human decision.
 
 ## Design notes
 
