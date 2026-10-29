@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSH Advisor · UI test fixture</title><link rel="stylesheet" href="/fonts.css">
+<style>
+:root { --dsw-alias-label-primary:#242c39;--dsw-alias-label-secondary:#667384;--dsw-alias-bg-base:#fff;--dsw-alias-bg-layer-1:#f5f7fa;--dsw-alias-bg-layer-2:#eaf0f6;--dsw-alias-bg-overlay:#fff;--dsw-alias-border-l1:#dce3eb;--dsw-alias-border-l2:#c5ceda;--dsw-alias-brand-primary:#2867cc;--dsw-alias-state-warn-primary:#9e6c19;--dsw-alias-state-error-primary:#b63248;--dsw-alias-state-success-primary:#287b57 }
+:root[data-theme=dark] { color-scheme:dark;--dsw-alias-label-primary:#e1e7ef;--dsw-alias-label-secondary:#a3afbf;--dsw-alias-bg-base:#181d25;--dsw-alias-bg-layer-1:#202732;--dsw-alias-bg-layer-2:#2b3544;--dsw-alias-bg-overlay:#1c232e;--dsw-alias-border-l1:#354152;--dsw-alias-border-l2:#526178;--dsw-alias-brand-primary:#5b8ef1;--dsw-alias-state-warn-primary:#e4b95b;--dsw-alias-state-error-primary:#f18c9b;--dsw-alias-state-success-primary:#70c99b }
+* {box-sizing:border-box}body {margin:0;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-family:'Noto Sans SC',system-ui,sans-serif;font-size:14px} .fixture-head {height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--dsw-alias-border-l1);gap:12px}.fixture-head strong {font-size:14px}.fixture-head small {font-size:10px;color:var(--dsw-alias-label-secondary);display:block}.fixture-nav {display:flex;gap:8px;align-items:center}.fixture-nav button {white-space:nowrap}.fixture-head>div:first-child {min-width:0}.fixture-head small {white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fixture-nav button {background:none;color:var(--dsw-alias-label-secondary);border:0;font:inherit;font-size:12px;cursor:pointer}.fixture-settings {max-width:960px;margin:24px auto;padding:0 28px}.fixture-chat {max-width:900px;margin:0 auto;min-height:calc(100dvh - 64px);padding:32px;display:flex;flex-direction:column}.fixture-message {max-width:650px;line-height:1.9;margin-bottom:26px}.fixture-message small {color:var(--dsw-alias-label-secondary)}.fixture-message h2 {font-size:20px;font-weight:500;margin:14px 0}.fixture-message p {font-size:14px}.fixture-composer {margin-top:auto;border:1px solid var(--dsw-alias-border-l1);border-radius:14px;padding:14px;background:var(--dsw-alias-bg-base)}#composer {resize:none;display:block;width:100%;height:74px;border:0;background:transparent;color:inherit;font:inherit;outline:0}.fixture-footer {display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dsw-alias-label-secondary)}@media(max-width:600px){.fixture-head {padding:0 16px}.fixture-settings {padding:0 12px;margin-top:12px}.fixture-chat {padding:20px 16px}.fixture-nav {gap:4px}}
+</style>
+<script src="/react.js"></script><script src="/react-dom.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+document.documentElement.dataset.theme = params.get('theme') || 'light';
+document.documentElement.lang = params.get('lang') || 'zh';
+const slots = {}, dictionaries = {}; const lang = params.get('lang') || 'zh';
+window.__ModuleLoader__ = { load({factory}) { window.plugin = factory(name => { if(name === 'react') return React; throw Error(name) }); } };
+</script><script src="/client.js"></script><div id="app"></div>
+<script>
+const sessionId = params.has('no-session') ? null : 'demo';
+plugin.apply({
+ get: name => name === 'uiSession' ? {adapter:{current:{getSnapshot:()=>({sessionId})}}} : null,
+ effect: fn => fn(),
+ locale: { register: (ns, values) => { dictionaries[ns] = values; return () => {} }, bind: ns => key => dictionaries[ns]?.[lang]?.[key] || key },
+ slots: { inject: (name, fn) => fn(), register: (config, Component) => { slots[config.id || config.key] = Component } }
+});
+const h = React.createElement;
+function App() {
+ const [screen, setScreen] = React.useState(params.get('view') || 'conversation');
+ const [draft, setDraft] = React.useState('主对话草稿，请勿更改');
+ const props = {sessionId, draft, useInput: select => select({draft})};
+ return h(React.Fragment,null,
+ h('header',{className:'fixture-head'},h('div',null,h('strong',null,'DSH / Advisor'),h('small',null,'本地交互验证 · 模拟宿主与模型')),
+ h('div',{className:'fixture-nav'},h('button',{onClick:()=>setScreen('conversation')},'对话'),h('button',{onClick:()=>setScreen('settings')},'设置'),screen==='conversation'&&h(slots['advisor-status'],props))),
+ screen==='settings'?h('main',{className:'fixture-settings'},h(slots.advisor)):h('main',{className:'fixture-chat'},
+ h('section',{className:'fixture-message'},h('small',null,'当前任务 / 用户交互优化'),h('h2',null,'让每一步都有明确的反馈'),h('p',null,'设置保存、材料预览和意见核验都需要清晰的状态。你可以继续与主力对话，也可以随时打开顾问工作台。'),h('p',null,'顾问会从另一个视角检查问题，最终结论仍需要结合实际代码与测试核验。')),
+ h('div',{className:'fixture-composer'},h('textarea',{id:'composer','aria-label':'主对话输入',value:draft,onChange:e=>setDraft(e.target.value)}),h('div',{className:'fixture-footer'},h(slots['advisor-consult'],props),h('span',null,'DeepSeek Chat · 模拟会话'))),
+ h(slots['advisor-confirm'],props)));
+}
+ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+</script></html>

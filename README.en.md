@@ -44,89 +44,43 @@ v0.1 was a tool only. v0.2 makes it a desktop plugin you can look at. Four thing
 stay visible at all times: **why a consultation happened, who is being asked,
 what was sent, and what the opinion changed.**
 
-### 1. Settings (Settings → Advisor)
+### 1. Settings
 
-It reuses the host settings system rather than shipping its own page:
+Settings are grouped by model, calling policy, material scope and delivery. Use **Save changes** to apply edits or **Discard changes** to restore the saved values. The master switch and session permission apply immediately. Connection checks use saved settings and are disabled while edits are pending.
 
-| Block | Content |
+| Section | Behavior |
 | --- | --- |
-| **Enable the advisor** | Master switch, on by default. When off, the composer entry, the card and the header chip all disappear, `consult.start` is refused (`reason:'disabled'`) and **no model request is ever made**; stored consultations stay readable. |
-| Status | No model / **usable** / misconfigured. **"Usable" only means it can run, not that it is running.** It also shows the model that would actually be used. |
-| Mode | Only when I ask (default) / after the model suggests it, I confirm / authorised for this session. The last two need one explicit grant; after that there are no repeated prompts. |
-| Advisor model | Follow the session model by default, or pick a provider + model from the host's real catalogue. |
-| Material scope | This question / selection / current plan / current changes / test output, toggled per item. **The full text can be previewed before sending.** |
-| Delivery | Show to me only / return to the working model for verification. |
-| Advanced | Advice token ceiling, per-consultation timeout, per-session call cap, per-session record retention. |
-| Connection check | **A request is only sent when the user presses it** — an 8-token ping that reports the actual model and round trip. |
+| Enable | Hide conversation surfaces and refuse new consultations when off. Retain history; existing requests are not automatically cancelled. |
+| Model | Follow the host’s current selection or choose a dedicated provider and model. Incomplete selections never fall back to a different model. |
+| Policy | Manual only / Ask each time / Allow automatic calls. Automatic mode applies across sessions. Manual mode can grant one session a temporary exception for up to 24 hours. |
+| Materials | Always include the question. Control excerpts, plan, changes and test output, then narrow the scope for each consultation. |
+| Delivery | Show only or send to the working model. Delivery does not mean verification. |
+| Advanced | Token limit, wait limit in seconds, session allowance and history retention. A wait limit or allowance of zero means unlimited. |
+| Connection check | Explicitly sends a real model request and reports the result and elapsed time. |
 
-### 2. In-session entry
+### 2. Question → preview → confirmation
 
-A "consult" button at the left of the composer. Consulting with a code selection
-focuses on that selection by default; the whole history is not silently attached.
-The confirm area expands in place above the composer with the subject, the model,
-a material summary, and "preview / start / cancel".
+Use the composer’s consult button, write a specific question, choose a review focus and optionally paste an excerpt. The next step shows the exact material text, target model and missing/truncated/earlier-turn warnings without calling the advisor. Only **Confirm and send** starts a consultation. Editing requires a fresh preview. If materials or the model change before sending, the host refuses the request and the question remains available to revise.
 
-### 3. Visible progress
+### 3. Conversation workspace
 
-A collapsible in-session card whose states all come from real events — **no
-invented percentage**. It sits below the composer, so it starts **collapsed to a
-single summary line** (state + first 30 characters of the question) and caps
-itself at `38vh` with internal scrolling when expanded, instead of pushing the
-conversation off screen:
+The header entry displays active consultations or opinions awaiting review. Open the workspace to read the full opinion, materials, actual state and errors. Its body scrolls independently. Cancel, copy and ask again are available as appropriate. Truncation, no advice, timeout, failure and cancellation remain distinct; no simulated progress is shown.
 
-`awaiting confirmation` → `request sent (waiting N s · cancel)` → `returned` /
-`cut off — incomplete advice` / `the advisor raised nothing new` / `timed out` /
-`failed` / `cancelled`
+Cancelling ends the local wait, without proving the provider stopped. No advice does not mean the task was verified.
 
-A low-noise chip in the session header: `Advisor: manual`, `Advisor working`,
-`2 consultations in this session`.
+### 4. Separate review form
 
-Every terminal state carries a caveat that only claims what the evidence
-supports:
+**Ask the model to verify** sends the opinion to the working model. **Record a review** opens a form within the card for the assessment, disposition and supporting evidence. Non-pending assessments require evidence. Human annotations use “Marked valid/invalid” rather than claiming the working model verified them, and never consume the main composer’s draft.
 
-- cut off → "The text is kept but the ending is missing; do not read it as a complete review."
-- nothing new → "This does not mean the task was verified."
-- cancelled → "This only ended the local wait; it is not evidence that the provider stopped generating."
-- failed → the provider's real reason (for example `UNKNOWN_MODEL pi-ai provider "llmgo" has no configured model "no-such-model-v0"`).
+Verification, disposition and delivery are independent facts. Unsaved review text survives closing and reopening the panel in the current page runtime.
 
-### 4. Result surface
+### 5. Materials and history
 
-A one-or-two-line conclusion first, the full opinion and its evidence on expand.
-Each finding answers four things: **what is wrong / what the evidence is (and which
-part is an assumption) / how to verify it / whether it widens the scope.**
+Records retain material digests and file fingerprints; changed materials are marked for re-checking. Search questions, opinions or models, or filter by review status. Refreshing while reading an older opinion keeps that record selected.
 
-Actions: `have the model verify` / `mark handled` / `the model says it does not
-hold` / `leave it for now` / `view the raw opinion`. There is deliberately **no
-vague one-click accept.**
+History is stored per session at `<DSH_HOME>/dsh-advisor/sessions/<sessionId>.json`; settings are stored at `<DSH_HOME>/dsh-advisor/settings.json`. Clearing history requires confirmation, retains usage counts and does not cancel active requests. Drafts are retained only within the current page, not across reloads.
 
-Three facts are recorded separately instead of collapsing into "accepted":
-
-- `verification`: unconfirmed / confirmed by the model / rejected by the model / inconclusive
-- `disposition`: none / handled per the advice / deferred
-- `delivered` / `not delivered`
-
-**Rejecting an opinion after checking it is a successful outcome** — it proves the
-advice was read and judged.
-
-### 5. Material version binding
-
-Each consultation stores a content digest (`sha256:`, first 32 hex chars) of the
-paths it actually sent. When the card is shown again, only those paths are
-re-hashed; if one moved it says
-
-> Based on an older version — needs re-checking
-> Changed materials: D:/DeepSeekHarness/工作区/.tmp/staleness-probe.txt
-
-Not the whole workspace: hashing everything would flag "changed" whenever anything
-anywhere moved, which trains people to ignore the marker.
-
-### 6. History and session isolation
-
-"History (N)" on the card replays every record of this session, newest first.
-Records live in `<DSH_HOME>/dsh-advisor/sessions/<sessionId>.json` — **one file
-per session**, so switching sessions cannot mix them. Settings live in
-`<DSH_HOME>/dsh-advisor/settings.json` and survive a restart; with the plugin off
-there are no automatic calls at all (there were none to begin with).
+See the [interaction validation report](docs/ui-interaction-review.md) for screenshots, nine browser scenarios and the remaining real-host verification boundary.
 
 ## Install
 

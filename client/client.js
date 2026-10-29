@@ -32,7 +32,7 @@ window.__ModuleLoader__.load({
   factory(require) {
     const React = require('react');
     const h = React.createElement;
-    const { useState, useEffect, useMemo, useRef, useCallback, useSyncExternalStore } = React;
+    const { useState, useEffect, useRef, useCallback, useSyncExternalStore } = React;
 
     const NS = 'dsh-advisor';
     const CHANNEL = '/plugin/dsh-advisor';
@@ -50,13 +50,26 @@ window.__ModuleLoader__.load({
     // ------------------------------------------------------------------ locale
 
     const ZH = {
+      focus_general: "综合检查",
+      focus_plan: "审查方案",
+      focus_diff: "检查改动",
+      focus_test: "分析测试",
+      placeholder_general: "提出一个具体问题，例如：这个流程有哪些容易遗漏的边界情况？",
+      placeholder_plan: "例如：这个方案的关键假设是否可靠，是否存在更简单的实现？",
+      placeholder_diff: "例如：这次改动有没有破坏原有行为，或引入重复请求？",
+      placeholder_test: "例如：当前测试覆盖了哪些风险，还缺少哪些重要用例？",
+      enabled: '已启用',
+      disabled: '已关闭',
+      focusLabel: '咨询重点',
+      loading: '正在加载…',
+      saving: '正在保存…',
       sectionLabel: '顾问',
       pageTitle: '顾问',
-      pageHint: '在你需要第二个视角时，把一个具体问题交给另一个模型看。它只在你发起时调用。',
+      pageHint: "把一个具体问题交给顾问，从另一个视角检查思路、改动与测试。",
 
       statusLabel: '插件状态',
       enabledLabel: '启用顾问',
-      enabledHint: '关掉后输入区不再出现入口，也不再有任何模型调用；已存的咨询记录保留。',
+      enabledHint: "开启后可发起咨询。自动调用的范围由下方设置决定。",
       statusNeedsModel: '未配置',
       statusReady: '可使用',
       statusBroken: '配置异常',
@@ -65,30 +78,30 @@ window.__ModuleLoader__.load({
       statusNoteBroken: '设置无法读取或校验失败。',
 
       modeLabel: '使用方式',
-      modeManual: '只在我要的时候咨询',
-      modeManualHint: '会话里不会自己发起。这是默认。',
-      modeConfirm: '主力建议后由我确认',
-      modeConfirmHint: '主力认为需要第二个视角时会说明卡点，等你点确认。',
-      modeAuto: '本会话内已授权，自动发起',
-      modeAutoHint: '授权一次后，本会话内的建议直接执行，不再逐次询问。',
+      modeManual: "仅手动发起",
+      modeManualHint: "由你点击咨询入口，主力模型不能自行调用。",
+      modeConfirm: "每次先确认",
+      modeConfirmHint: "主力模型需要咨询时，先向你申请许可。",
+      modeAuto: "允许自动发起",
+      modeAutoHint: "允许主力模型直接咨询，受每会话次数上限约束。",
       grantLabel: '本会话授权',
-      grantOn: '本会话已授权自动咨询',
-      grantOff: '本会话未授权',
+      grantOn: "当前会话已获临时授权。",
+      grantOff: "当前会话授权已撤销。",
       grantButton: '授权本会话',
       revokeButton: '撤销本会话授权',
-      grantHint: '授权只对当前会话有效，换会话需要重新授权。',
+      grantHint: "仅限当前会话，最长 24 小时；在“仅手动发起”模式下临时允许自动咨询。",
 
       modelLabel: '顾问模型',
-      modelFollowSession: '跟随当前会话模型',
+      modelFollowSession: "跟随当前模型",
       modelFixed: '指定模型',
-      modelProvider: 'Provider',
-      modelName: 'Model',
+      modelProvider: '供应商',
+      modelName: '模型',
       modelResolved: '实际将使用',
-      modelMissing: '（无）',
-      modelFollowHint: '当前会话没有默认模型时，咨询会直接说明原因，不会静默换成别的模型。',
+      modelMissing: '先在顾问设置中选择可用模型，再重新预览。',
+      modelFollowHint: "使用宿主当前选择的供应商与模型。切换模型后，顾问也会随之变化。",
 
       materialsLabel: '材料范围',
-      materialsHint: '勾选的材料才会被组装并发送。发送前可以在确认区看全文。',
+      materialsHint: "这些是允许发送的材料类型。每次咨询前，你仍可以缩小范围并预览正文。",
       materialQuestion: '本次问题',
       materialSelection: '选中内容',
       materialPlan: '当前方案',
@@ -97,9 +110,9 @@ window.__ModuleLoader__.load({
 
       deliveryLabel: '工作方式',
       deliveryShow: '只展示给我',
-      deliveryShowHint: '意见停在卡片里，主力不会被打断。',
+      deliveryShowHint: "先在意见卡片中阅读，再决定是否交给主力模型。",
       deliveryReturn: '返回主力核验',
-      deliveryReturnHint: '意见会作为一条消息交给主力，由它说明核验结果或为什么不采纳。',
+      deliveryReturnHint: "顾问返回有效意见后自动交给主力模型；交付成功不代表意见已经核验。",
 
       advancedLabel: '高级设置',
       advancedTokens: '意见长度上限（token）',
@@ -123,8 +136,8 @@ window.__ModuleLoader__.load({
       clearDone: '已清空',
       historyLimitLabel: '保留',
 
-      saved: '已保存',
-      saveFailed: '保存失败',
+      saved: "修改已保存",
+      saveFailed: "保存失败，请重试",
       loadFailed: '读取设置失败',
       noChannel: '拿不到宿主通道，这个页面无法读写设置。',
 
@@ -137,7 +150,7 @@ window.__ModuleLoader__.load({
       viewMaterials: '查看材料',
       hideMaterials: '收起材料',
       startConsult: '开始咨询',
-      cancel: '取消',
+      cancel: "取消",
       cancelConsult: '取消这次咨询',
       cancelling: '正在取消…',
       starting: '正在准备材料…',
@@ -166,11 +179,11 @@ window.__ModuleLoader__.load({
       staleNote: '基于旧版本，需重新核验',
       stalePaths: '改动过的材料：',
 
-      deliveryFact: '交付',
+      deliveryFact: "主力接收",
       verifyLabel: '核验状态',
       verifyPending: '尚未确认',
-      verifyConfirmed: '主力确认了这条意见',
-      verifyRejected: '主力核对后认为不成立',
+      verifyConfirmed: "已标记成立",
+      verifyRejected: "已标记不成立",
       verifyInconclusive: '核验无定论',
       dispositionLabel: '处理状态',
       dispositionNone: '未处理',
@@ -178,7 +191,7 @@ window.__ModuleLoader__.load({
       dispositionFixed: '已修改',
       dispositionDeferred: '暂不处理',
       deliveredLabel: '已交给主力',
-      notDelivered: '未交给主力',
+      notDelivered: "尚未交付",
 
       actionVerify: '让主力核验',
       actionVerifySent: '已交给主力',
@@ -188,7 +201,7 @@ window.__ModuleLoader__.load({
       actionAccept: '标记为已处理',
       actionReject: '主力认为不成立',
       actionInconclusive: '无定论',
-      verifyNeedsNote: '请在输入框里写明理由，然后再标记。',
+      verifyNeedsNote: "请填写核验依据，再保存判断。",
       verifyHint: '标记时请写理由：没有理由的结论，后面的人无法判断它是不是真的核过。',
 
       historyLabel: '本会话历史',
@@ -217,16 +230,102 @@ window.__ModuleLoader__.load({
       truncatedMaterial: '（已截断）',
       earlierTurnMaterial: '（写于更早的轮次）',
       close: '关闭',
+      disabledHint: "顾问已关闭，新咨询不会发起。历史记录保留；已经发出的请求可在重新启用后取消。",
+      settingsEyebrow: "第二个视角 · 由你掌控",
+      modelSectionHint: "选择谁来回答。使用不同于主力的模型，往往能带来新的视角。",
+      modelFixedHint: "为顾问单独指定模型，不随主力的选择变化。",
+      selectProvider: "选择供应商",
+      selectModel: "选择模型",
+      afterSaving: "保存后使用",
+      saveBeforeCheck: "先保存修改，再检查连接。",
+      modeSectionHint: "手动咨询始终需要你确认；这里控制主力模型能否主动请求顾问。",
+      autoScopeHint: "此设置对所有会话生效，自动咨询可能产生模型费用。若只想临时放行当前会话，请选择“仅手动发起”，再使用下方授权。",
+      openSessionHint: "先打开一个会话，再管理该会话的授权与记录。",
+      materialHint_question: "你的问题，始终包含",
+      materialHint_selection: "你选中或粘贴的片段",
+      materialHint_plan: "宿主可读取的计划",
+      materialHint_diff: "当前工作区的改动",
+      materialHint_test: "宿主可读取的测试结果",
+      advancedSummary: "长度、超时与次数上限",
+      timeoutSeconds: "等待时限（秒）",
+      budgetHelp: "等待时限或每会话次数设为 0 表示不限。清空历史不会重置已用次数。",
+      historyManagement: "管理历史记录",
+      sessionOnly: "当前会话",
+      clearBudgetHint: "仅清除当前会话已保存的咨询记录，不重置调用次数，也不取消正在进行的请求。",
+      unsaved: "有未保存的修改",
+      settingsSaved: "设置已保存 · 开关与会话授权即时生效",
+      saveSettings: "保存修改",
+      discard: "放弃修改",
+      enabledNow: "顾问已启用",
+      disabledNow: "顾问已关闭",
+      retry: "重试",
+      secondOpinion: "独立意见 · 发送前确认",
+      consultSteps: "咨询步骤",
+      writeQuestion: "提出问题",
+      reviewAndSend: "确认材料并发送",
+      thisTimeMaterials: "本次发送的材料",
+      thisTimeOnly: "仅影响本次咨询",
+      disabledInSettings: "已在设置中关闭",
+      pasteSelection: "补充片段（可选）",
+      pasteHint: "选中的文字会带到这里，也可以直接粘贴代码或说明。",
+      exactMaterial: "查看将发送的完整材料",
+      sendCostHint: "确认后将调用模型，可能产生费用。",
+      previewFreeHint: "下一步只准备材料，不调用顾问模型。",
+      editRequest: "返回编辑",
+      confirmAndSend: "确认并发送",
+      previewNext: "下一步：预览材料",
+      working: "处理中…",
+      advisorCenter: "顾问工作台",
+      advisorViews: "顾问视图",
+      searchHistory: "搜索问题、意见或模型",
+      filterHistory: "筛选记录",
+      filter_all: "全部",
+      filter_pending: "待核验",
+      filter_running: "进行中",
+      filter_issues: "未完成",
+      noResults: "没有匹配的记录",
+      changeFilter: "换个关键词，或选择其他筛选条件。",
+      emptyHint: "针对一个具体问题发起咨询，顾问意见和后续核验都会保存在这里。",
+      opinionNotFact: "顾问提供第二个视角，结论仍需结合实际核验。",
+      newConsult: "发起咨询",
+      waitingTitle: "顾问正在阅读材料",
+      waitingHint: "可以继续对话，结果会保留在这里。",
+      materialUsed: "本次咨询使用的材料",
+      recordVerdict: "记录核验结果",
+      manualVerdictHint: "这里记录你核验后的判断，不会自动声称主力模型已经确认。",
+      verdictReason: "核验依据",
+      verdictPlaceholder: "说明检查了哪里、依据是什么，以及做了哪些处理。",
+      saveVerdict: "保存核验结果",
+      verdictSaved: "核验结果已保存。",
+      recordMissing: "记录已不存在，请刷新后重试。",
+      noLongerRunning: "该咨询已结束，请刷新查看结果。",
+      deliveryFailed: "未能交给主力模型，请稍后重试。",
+      askAgain: "再次咨询",
+      copyOpinion: "复制意见",
+      copied: "意见已复制。",
     };
 
     const EN = {
+      focus_general: "General",
+      focus_plan: "Plan",
+      focus_diff: "Changes",
+      focus_test: "Tests",
+      placeholder_general: "Ask a specific question, such as: Which edge cases could this flow miss?",
+      placeholder_plan: "Are this plan’s assumptions sound? Is there a simpler implementation?",
+      placeholder_diff: "Could this change break existing behavior or introduce duplicate requests?",
+      placeholder_test: "What risks do the tests cover, and which important cases are missing?",
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      focusLabel: 'Review focus',
+      loading: 'Loading…',
+      saving: 'Saving…',
       sectionLabel: 'Advisor',
       pageTitle: 'Advisor',
-      pageHint: 'Hand one specific question to another model when you want a second pair of eyes. It is called only when you start it.',
+      pageHint: "Ask your advisor to review a specific question, plan, change or test from another perspective.",
 
       statusLabel: 'Status',
       enabledLabel: 'Enable the advisor',
-      enabledHint: 'When off, the composer entry disappears and no model is ever called. Consultation history is kept.',
+      enabledHint: "Enable consultations. The policy below controls automatic calls.",
       statusNeedsModel: 'Not configured',
       statusReady: 'Ready',
       statusBroken: 'Misconfigured',
@@ -235,30 +334,30 @@ window.__ModuleLoader__.load({
       statusNoteBroken: 'Settings could not be read or validated.',
 
       modeLabel: 'How it is used',
-      modeManual: 'Only when I ask',
-      modeManualHint: 'Nothing starts on its own. This is the default.',
-      modeConfirm: 'The model suggests, I confirm',
-      modeConfirmHint: 'When the working model wants a second opinion it states the blocker and waits for you.',
-      modeAuto: 'Authorised in this session, starts automatically',
-      modeAutoHint: 'After one grant, suggestions in this session run without another prompt.',
+      modeManual: "Manual only",
+      modeManualHint: "Start from the consult button. The working model cannot call the advisor on its own.",
+      modeConfirm: "Ask each time",
+      modeConfirmHint: "The working model asks for permission before each consultation.",
+      modeAuto: "Allow automatic calls",
+      modeAutoHint: "Allow the working model to consult directly, within the per-session limit.",
       grantLabel: 'Session grant',
-      grantOn: 'This session may consult automatically',
-      grantOff: 'This session is not granted',
+      grantOn: "Temporary session permission granted.",
+      grantOff: "Session permission revoked.",
       grantButton: 'Grant this session',
       revokeButton: 'Revoke session grant',
-      grantHint: 'A grant applies to the current session only.',
+      grantHint: "Allow automatic consultations for this session only, for up to 24 hours, while using Manual only.",
 
       modelLabel: 'Advisor model',
-      modelFollowSession: 'Follow the current session model',
+      modelFollowSession: "Follow current model",
       modelFixed: 'Use a specific model',
       modelProvider: 'Provider',
       modelName: 'Model',
       modelResolved: 'Actually used',
-      modelMissing: '(none)',
-      modelFollowHint: 'If the session has no default model, the consultation says so instead of silently choosing another one.',
+      modelMissing: 'Choose an available model in Advisor settings, then preview again.',
+      modelFollowHint: "Use the host’s current provider and model. Changing that selection also changes the advisor.",
 
       materialsLabel: 'Material scope',
-      materialsHint: 'Only checked material is assembled and sent. You can read the exact text before sending.',
+      materialsHint: "These are the allowed material types. You can narrow the scope and inspect the exact text before each consultation.",
       materialQuestion: 'The question',
       materialSelection: 'Selection',
       materialPlan: 'Current plan',
@@ -267,9 +366,9 @@ window.__ModuleLoader__.load({
 
       deliveryLabel: 'Delivery',
       deliveryShow: 'Show to me only',
-      deliveryShowHint: 'The opinion stays on the card and the working model is not interrupted.',
+      deliveryShowHint: "Read the opinion first, then decide whether to send it to the working model.",
       deliveryReturn: 'Hand back for verification',
-      deliveryReturnHint: 'The opinion is delivered as a message so the model must state what it checked or why it disagrees.',
+      deliveryReturnHint: "Automatically send valid advice to the working model. Successful delivery does not mean the advice is verified.",
 
       advancedLabel: 'Advanced',
       advancedTokens: 'Answer budget (tokens)',
@@ -293,8 +392,8 @@ window.__ModuleLoader__.load({
       clearDone: 'Cleared',
       historyLimitLabel: 'Keep',
 
-      saved: 'Saved',
-      saveFailed: 'Save failed',
+      saved: "Changes saved",
+      saveFailed: "Could not save. Please retry",
       loadFailed: 'Could not read settings',
       noChannel: 'The host channel is unavailable, so this page cannot read or write settings.',
 
@@ -307,7 +406,7 @@ window.__ModuleLoader__.load({
       viewMaterials: 'View material',
       hideMaterials: 'Hide material',
       startConsult: 'Start consultation',
-      cancel: 'Cancel',
+      cancel: "Cancel",
       cancelConsult: 'Cancel this consultation',
       cancelling: 'Cancelling…',
       starting: 'Preparing material…',
@@ -336,11 +435,11 @@ window.__ModuleLoader__.load({
       staleNote: 'Based on an older version — needs re-checking',
       stalePaths: 'Material that moved:',
 
-      deliveryFact: 'Delivery',
+      deliveryFact: "Delivery",
       verifyLabel: 'Verification',
       verifyPending: 'Not established',
-      verifyConfirmed: 'The working model confirmed this',
-      verifyRejected: 'The working model checked and disagreed',
+      verifyConfirmed: "Marked valid",
+      verifyRejected: "Marked invalid",
       verifyInconclusive: 'Inconclusive',
       dispositionLabel: 'Disposition',
       dispositionNone: 'Untouched',
@@ -348,7 +447,7 @@ window.__ModuleLoader__.load({
       dispositionFixed: 'Changed',
       dispositionDeferred: 'Deferred',
       deliveredLabel: 'Handed to the model',
-      notDelivered: 'Not delivered',
+      notDelivered: "Not delivered",
 
       actionVerify: 'Ask the model to verify',
       actionVerifySent: 'Handed over',
@@ -358,7 +457,7 @@ window.__ModuleLoader__.load({
       actionAccept: 'Mark as handled',
       actionReject: 'Model disagrees',
       actionInconclusive: 'Inconclusive',
-      verifyNeedsNote: 'Write the reason in the composer first, then mark.',
+      verifyNeedsNote: "Add review evidence before saving your assessment.",
       verifyHint: 'State a reason when marking: a verdict without one cannot be checked later.',
 
       historyLabel: 'This session',
@@ -387,6 +486,79 @@ window.__ModuleLoader__.load({
       truncatedMaterial: '(truncated)',
       earlierTurnMaterial: '(written before this turn)',
       close: 'Close',
+      disabledHint: "Advisor is off. New consultations are blocked and history is retained. Re-enable to cancel an existing request.",
+      settingsEyebrow: "A SECOND OPINION · YOUR CONTROL",
+      modelSectionHint: "Choose who answers. A different model may offer a useful second perspective.",
+      modelFixedHint: "Choose a dedicated advisor model, independent of the working model.",
+      selectProvider: "Choose provider",
+      selectModel: "Choose model",
+      afterSaving: "After saving",
+      saveBeforeCheck: "Save your changes before checking the connection.",
+      modeSectionHint: "Manual consultations always require your confirmation. This policy controls requests initiated by the working model.",
+      autoScopeHint: "This applies to all sessions and automatic consultations may incur model costs. For a temporary exception, choose Manual only and grant the current session below.",
+      openSessionHint: "Open a conversation to manage its permission and history.",
+      materialHint_question: "Your question is always included",
+      materialHint_selection: "Text you select or paste",
+      materialHint_plan: "Plan available from the host",
+      materialHint_diff: "Current workspace changes",
+      materialHint_test: "Test results available from the host",
+      advancedSummary: "Length, timeout and usage limits",
+      timeoutSeconds: "Wait limit (seconds)",
+      budgetHelp: "Set wait limit or session allowance to 0 for no limit. Clearing history does not reset usage.",
+      historyManagement: "Manage history",
+      sessionOnly: "CURRENT CONVERSATION",
+      clearBudgetHint: "Remove this conversation’s saved consultations. Usage is retained and active requests are not cancelled.",
+      unsaved: "You have unsaved changes",
+      settingsSaved: "Settings saved · Switch and session permission apply immediately",
+      saveSettings: "Save changes",
+      discard: "Discard changes",
+      enabledNow: "Advisor enabled",
+      disabledNow: "Advisor disabled",
+      retry: "Retry",
+      secondOpinion: "SECOND OPINION · REVIEW BEFORE SENDING",
+      consultSteps: "Consultation steps",
+      writeQuestion: "Write a question",
+      reviewAndSend: "Review and send",
+      thisTimeMaterials: "Materials for this consultation",
+      thisTimeOnly: "This consultation only",
+      disabledInSettings: "Disabled in settings",
+      pasteSelection: "Additional excerpt (optional)",
+      pasteHint: "Selected text appears here. You can also paste code or context.",
+      exactMaterial: "Exact material to be sent",
+      sendCostHint: "Confirming calls the model and may incur costs.",
+      previewFreeHint: "The next step prepares materials without calling the advisor.",
+      editRequest: "Back to edit",
+      confirmAndSend: "Confirm and send",
+      previewNext: "Next: review materials",
+      working: "Working…",
+      advisorCenter: "Advisor workspace",
+      advisorViews: "Advisor views",
+      searchHistory: "Search questions, opinions or models",
+      filterHistory: "Filter consultations",
+      filter_all: "All",
+      filter_pending: "To review",
+      filter_running: "In progress",
+      filter_issues: "Incomplete",
+      noResults: "No matching consultations",
+      changeFilter: "Try another keyword or filter.",
+      emptyHint: "Ask a specific question. Opinions and subsequent reviews will be saved here.",
+      opinionNotFact: "A second perspective. Verify findings against the actual work.",
+      newConsult: "New consultation",
+      waitingTitle: "The advisor is reviewing your materials",
+      waitingHint: "You can continue the conversation. The result will be kept here.",
+      materialUsed: "Materials used",
+      recordVerdict: "Record a review",
+      manualVerdictHint: "Record your own assessment here. This does not claim the working model has verified the finding.",
+      verdictReason: "Review evidence",
+      verdictPlaceholder: "Explain what you checked, the evidence and any action taken.",
+      saveVerdict: "Save review",
+      verdictSaved: "Review saved.",
+      recordMissing: "This record no longer exists. Refresh and retry.",
+      noLongerRunning: "This consultation has ended. Refresh to see the result.",
+      deliveryFailed: "Could not send to the working model. Please retry.",
+      askAgain: "Ask again",
+      copyOpinion: "Copy opinion",
+      copied: "Opinion copied.",
     };
 
     const DICT = { zh: ZH, en: EN };
@@ -394,153 +566,164 @@ window.__ModuleLoader__.load({
     // ------------------------------------------------------------------ styles
 
     const CSS = `
-.dsha-page { display: flex; flex-direction: column; gap: 18px; padding: 4px 2px 40px; max-width: 720px; }
-.dsha-h1 { font-size: 15px; font-weight: 600; color: var(--dsw-alias-label-primary); margin: 0; }
-.dsha-hint { font-size: 12px; line-height: 1.6; color: var(--dsw-alias-label-secondary); margin: 0; }
-.dsha-block { display: flex; flex-direction: column; gap: 8px; }
-/* Buttons inside a block are a secondary action next to long text; stretching them
-   to the full column width makes them read as a divider bar. */
-.dsha-block > .dsha-btn { align-self: flex-start; }
-.dsha-label { font-size: 12px; font-weight: 600; color: var(--dsw-alias-label-primary); }
-.dsha-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.dsha-card { border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; background: var(--dsw-alias-bg-layer-1); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-.dsha-option { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; font-size: 12px; line-height: 1.55; color: var(--dsw-alias-label-primary); }
-.dsha-option input { margin-top: 2px; }
-.dsha-option-hint { color: var(--dsw-alias-label-secondary); }
-.dsha-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-.dsha-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dsw-alias-state-idle-primary); }
-.dsha-dot.ok { background: var(--dsw-alias-state-success-primary); }
-.dsha-dot.warn { background: var(--dsw-alias-state-warn-primary); }
-.dsha-dot.err { background: var(--dsw-alias-state-error-primary); }
-.dsha-input, .dsha-select, .dsha-textarea { font: inherit; font-size: 12px; color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-base); border: 1px solid var(--dsw-alias-border-l1); border-radius: 7px; padding: 5px 8px; }
-.dsha-textarea { min-height: 62px; resize: vertical; width: 100%; box-sizing: border-box; line-height: 1.55; }
-.dsha-num { width: 108px; }
-.dsha-btn { font: inherit; font-size: 12px; border-radius: 7px; padding: 5px 11px; cursor: pointer; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
-.dsha-btn:hover:not(:disabled) { border-color: var(--dsw-alias-border-l2); }
-.dsha-btn:disabled { opacity: .5; cursor: default; }
-.dsha-btn.primary { background: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); color: #fff; }
-.dsha-btn.ghost { background: transparent; }
-.dsha-btn.danger { background: var(--dsw-alias-state-error-primary); border-color: var(--dsw-alias-state-error-primary); color: #fff; }
-.dsha-btn.tiny { padding: 2px 8px; font-size: 11px; }
-.dsha-pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; background: var(--dsw-alias-bg-base); border: 1px solid var(--dsw-alias-border-l1); border-radius: 7px; padding: 8px 10px; max-height: 240px; overflow: auto; margin: 0; color: var(--dsw-alias-label-primary); }
-.dsha-note { font-size: 11px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
-.dsha-note.warn { color: var(--dsw-alias-state-warn-primary); }
-.dsha-note.err { color: var(--dsw-alias-state-error-primary); }
-.dsha-note.ok { color: var(--dsw-alias-state-success-primary); }
-
-/* The advisor lives in the session header, not under the composer. The strip
-   below the composer is a horizontal row that also carries the turn/step/token
-   statistics, so anything rendered there competes with a footnote for the same
-   line — and expanding in place either clips or shoves those statistics aside.
-   The header has real width and no scrolling ancestor, so the pill sits there
-   and the panel hangs below it without moving anything. */
-.dsha-hdwrap { position: relative; display: inline-flex; align-items: center; }
-.dsha-panel { position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; display: flex; flex-direction: column; gap: 0; width: min(560px, 88vw); max-height: min(62vh, 600px); padding: 0; border: 1px solid var(--dsw-alias-border-l2); border-radius: 12px; background: var(--dsw-alias-bg-overlay); box-shadow: 0 16px 40px rgba(0,0,0,.18); overflow: hidden; }
-/* The head stays put and only the body scrolls: an opinion is long, and a panel
-   whose title scrolls away stops saying what is being looked at. */
-.dsha-panel-body { display: flex; flex-direction: column; gap: 9px; padding: 11px 13px 12px; overflow-y: auto; }
-.dsha-panel-head { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 13px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
-.dsha-panel-title { font-size: 12px; font-weight: 600; color: var(--dsw-alias-label-primary); white-space: nowrap; }
-.dsha-panel-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
-.dsha-link { font: inherit; font-size: 11px; color: var(--dsw-alias-label-secondary); background: transparent; border: none; border-radius: 5px; padding: 2px 7px; cursor: pointer; white-space: nowrap; }
-.dsha-link:hover { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-2); }
-.dsha-link[aria-pressed="true"] { color: var(--dsw-alias-brand-primary); }
-/* Inline chips inside the card and the confirmation strip: read-only labels for
-   the scope of a consultation (which materials go out, which model answers). */
-.dsha-chipline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--dsw-alias-label-secondary); }
-.dsha-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--dsw-alias-label-secondary); border: 1px solid var(--dsw-alias-border-l1); border-radius: 999px; padding: 2px 9px; background: transparent; cursor: default; white-space: nowrap; }
-.dsha-chip.busy { color: var(--dsw-alias-state-warn-primary); border-color: var(--dsw-alias-state-warn-primary); }
-
-/* The header pill is the only advisor surface visible while the card is
-   collapsed, so it has to carry the one fact that matters — something is
-   running, or an opinion is waiting on a verdict — and it has to open the
-   card when clicked. A pill whose text never changes reads as decoration. */
-.dsha-hd { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12px; font-weight: 600; line-height: 1; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; white-space: nowrap; }
-.dsha-hd:hover { border-color: var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); }
-.dsha-hd:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
-.dsha-hd .dsha-dot { width: 7px; height: 7px; }
-.dsha-hd.quiet { color: var(--dsw-alias-label-secondary); font-weight: 400; }
-/* Filled, not outlined: an outline chip next to the theme and layout icons reads
-   as another icon. The one state that asks the person to do something gets the
-   solid treatment a badge gets. */
-.dsha-hd.brand { background: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); color: #fff; }
-.dsha-hd.brand .dsha-dot { background: #fff; }
-.dsha-hd.brand:hover { color: #fff; border-color: var(--dsw-alias-brand-primary); filter: brightness(1.08); }
-.dsha-hd.warn { color: var(--dsw-alias-state-warn-primary); border-color: var(--dsw-alias-state-warn-primary); }
-.dsha-hd.warn .dsha-dot { background: var(--dsw-alias-state-warn-primary); animation: dsha-pulse 1.6s ease-in-out infinite; }
-.dsha-hd.err { color: var(--dsw-alias-state-error-primary); border-color: var(--dsw-alias-state-error-primary); }
-.dsha-hd.err .dsha-dot { background: var(--dsw-alias-state-error-primary); }
-.dsha-hd-ago { font-variant-numeric: tabular-nums; font-weight: 400; opacity: .85; }
-@keyframes dsha-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-
-.dsha-entry { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--dsw-alias-label-secondary); background: transparent; border: 1px solid var(--dsw-alias-border-l1); border-radius: 999px; padding: 3px 10px; cursor: pointer; white-space: nowrap; }
-.dsha-entry:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
-.dsha-entry[data-open="true"] { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
-
-.dsha-consult { display: flex; flex-direction: column; gap: 9px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; background: var(--dsw-alias-bg-layer-1); padding: 11px 13px; }
-/* Two lines, not one: the state and the model do not both fit beside the time on
-   a narrow card, and wrapping them into each other was what turned labels
-   vertical. Line one is what happened, line two is who answered. */
-.dsha-consult-head { display: flex; flex-direction: column; gap: 3px; }
-.dsha-factline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.dsha-factline .dsha-status { font-size: 12px; }
-.dsha-factline .dsha-when { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.dsha-prov { font-size: 11px; color: var(--dsw-alias-label-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dsha-advice { font-size: 12px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; color: var(--dsw-alias-label-primary); margin: 0; }
-/* The question is quoted material, so it is set apart from the answer: a left
-   rule and the muted colour say "this is what was asked", not "this is a finding". */
-.dsha-quote { font-size: 11px; line-height: 1.6; color: var(--dsw-alias-label-secondary); margin: 0; padding-left: 8px; border-left: 2px solid var(--dsw-alias-border-l2); white-space: pre-wrap; word-break: break-word; }
-/* Every label in a row refuses to wrap. A vertical "已返回" is not a cramped
-   label, it is a broken one: two characters stacked read as decoration. */
-.dsha-meta { display: flex; gap: 4px 12px; flex-wrap: wrap; align-items: center; font-size: 11px; line-height: 1.5; color: var(--dsw-alias-label-secondary); }
-.dsha-meta > span { white-space: nowrap; }
-.dsha-meta .dsha-sep { color: var(--dsw-alias-border-l2); }
-
-/* The three facts are a definition list in three columns, because each one is
-   answered by a different button below and a run-on sentence makes them look
-   like one status. */
-.dsha-facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; font-size: 11px; line-height: 1.5; }
-.dsha-facts dt { color: var(--dsw-alias-label-secondary); white-space: nowrap; }
-.dsha-facts dd { margin: 0; color: var(--dsw-alias-label-primary); }
-.dsha-facts dd[data-tone="ok"] { color: var(--dsw-alias-state-success-primary); }
-.dsha-facts dd[data-tone="err"] { color: var(--dsw-alias-state-error-primary); }
-
-/* The history is read as a table: time, state, question, action. Fixed columns
-   are what make it scannable — a row where the question starts at a different x
-   on every line is a paragraph pretending to be a list. */
-.dsha-list { display: flex; flex-direction: column; gap: 1px; max-height: 32vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
-.dsha-histrow {
-  display: grid;
-  grid-template-columns: 36px 104px minmax(0, 1fr) 14px;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  font: inherit;
-  font-size: 11px;
-  line-height: 16px;
-  text-align: left;
-  color: var(--dsw-alias-label-secondary);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 5px 6px;
-  cursor: pointer;
+/* Scoped to plugin surfaces; host tokens keep light/dark themes consistent. */
+.dsha-page,.dsha-dock,.dsha-panel,.dsha-consult,.dsha-hdwrap,.dsha-entry {
+ --ad-text:var(--dsw-alias-label-primary,#202632); --ad-muted:var(--dsw-alias-label-secondary,#687383);
+ --ad-bg:var(--dsw-alias-bg-base,#fff); --ad-soft:var(--dsw-alias-bg-layer-1,#f5f7fa);
+ --ad-hover:var(--dsw-alias-bg-layer-2,#edf1f6); --ad-border:var(--dsw-alias-border-l1,#dce2e9);
+ --ad-brand:var(--dsw-alias-brand-primary,#2867cc); --ad-error:var(--dsw-alias-state-error-primary,#bd3545);
+ --ad-warn:var(--dsw-alias-state-warn-primary,#986418); --ad-ok:var(--dsw-alias-state-success-primary,#287b57);
+ color:var(--ad-text); font:inherit; font-size:14px; line-height:1.6; text-align:left; box-sizing:border-box;
 }
-.dsha-histrow:hover { background: var(--dsw-alias-bg-layer-2); border-color: var(--dsw-alias-border-l1); }
-.dsha-histrow:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: -1px; }
-.dsha-histrow .dsha-when { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.dsha-histrow .dsha-state { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; }
-.dsha-histrow .dsha-ask { color: var(--dsw-alias-label-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* An opinion nobody has judged yet is the reason this list is worth opening, so
-   that row is the one carrying weight: brand-coloured state, readable question,
-   and a chevron that says "this is the one to pick". */
-.dsha-histrow[data-owed="true"] .dsha-state { color: var(--dsw-alias-brand-primary); font-weight: 600; }
-.dsha-histrow[data-owed="true"] .dsha-ask { color: var(--dsw-alias-label-primary); }
-.dsha-histrow .dsha-go { color: var(--dsw-alias-border-l2); font-size: 13px; line-height: 1; text-align: center; }
-.dsha-histrow:hover .dsha-go { color: var(--dsw-alias-label-primary); }
-.dsha-owed { font-size: 9px; font-weight: 700; letter-spacing: .02em; color: var(--dsw-alias-brand-primary); border: 1px solid var(--dsw-alias-brand-primary); border-radius: 3px; padding: 0 3px; white-space: nowrap; }
-.dsha-spacer { flex: 1; }
-@media (prefers-reduced-motion: reduce) { .dsha-chip, .dsha-btn, .dsha-entry, .dsha-hd { transition: none; } .dsha-hd.warn .dsha-dot { animation: none; } }
+.dsha-page *,.dsha-dock *,.dsha-panel *,.dsha-consult * { box-sizing:border-box; }
+.dsha-page { max-width:840px; margin:0 auto; padding:12px 12px 32px; }
+.dsha-page h1,.dsha-page h2,.dsha-dock h2,.dsha-panel h2,.dsha-consult h3,.dsha-consult h4 { margin:0; color:var(--ad-text); font-weight:600; line-height:1.4; }
+.dsha-page h1 { font-size:26px; letter-spacing:-.03em; margin:4px 0 8px; }
+.dsha-page h2,.dsha-dock h2,.dsha-panel h2 { font-size:17px; }
+.dsha-page-head { display:flex; justify-content:space-between; align-items:center; gap:24px; padding:12px 0 28px; }
+.dsha-eyebrow { display:block; color:var(--ad-muted); font-size:11px; letter-spacing:.1em; font-weight:600; }
+.dsha-hint,.dsha-note { display:block; color:var(--ad-muted); font-size:12px; line-height:1.65; margin:0; overflow-wrap:anywhere; }
+.dsha-hint { font-size:13px; }
+.dsha-note.err,.dsha-callout.err { color:var(--ad-error); }
+.dsha-note.warn { color:var(--ad-warn); }
+.dsha-note.ok { color:var(--ad-ok); }
+.dsha-fields { border:0; padding:0; margin:0; min-width:0; }
+.dsha-section { border-top:1px solid var(--ad-border); padding:26px 0; }
+.dsha-section-title { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
+.dsha-section-title p { margin-top:4px; }
+.dsha-step { color:var(--ad-muted); font-size:11px; line-height:25px; font-variant-numeric:tabular-nums; }
+.dsha-block { display:flex; flex-direction:column; gap:14px; }
+.dsha-choices,.dsha-grid { display:grid; gap:10px; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.dsha-choices.two,.dsha-grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.dsha-choice { display:flex; gap:10px; padding:15px; border:1px solid var(--ad-border); border-radius:10px; cursor:pointer; align-items:flex-start; background:var(--ad-bg); min-width:0; }
+.dsha-choice > span { min-width:0; }
+.dsha-choice strong { display:block; margin-bottom:4px; font-size:13px; }
+.dsha-choice[data-selected="true"] { border-color:var(--ad-brand); background:color-mix(in srgb,var(--ad-brand) 5%,var(--ad-bg)); }
+.dsha-choice:hover { border-color:var(--ad-brand); }
+.dsha-page input[type=radio],.dsha-page input[type=checkbox],.dsha-dock input[type=checkbox] { accent-color:var(--ad-brand); flex:none; width:16px; height:16px; margin:4px 0 0; }
+.dsha-material-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 24px; }
+.dsha-material-choice { display:flex; align-items:flex-start; gap:10px; cursor:pointer; padding:6px 0; }
+.dsha-material-choice strong { font-size:13px; font-weight:500; }
+.dsha-field { display:flex; flex-direction:column; gap:7px; font-size:13px; font-weight:500; min-width:0; }
+.dsha-input,.dsha-select,.dsha-textarea { display:block; width:100%; min-width:0; font:inherit; font-weight:400; font-size:13px; line-height:1.6; color:var(--ad-text); background:var(--ad-bg); border:1px solid var(--ad-border); border-radius:8px; padding:9px 11px; min-height:40px; }
+.dsha-textarea { resize:vertical; max-height:260px; min-height:88px; }
+.dsha-textarea.compact { min-height:66px; }
+.dsha-row,.dsha-model-summary,.dsha-session-line { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.dsha-model-summary { background:var(--ad-soft); border-radius:8px; padding:10px 12px; font-size:12px; overflow-wrap:anywhere; }
+.dsha-model-summary strong { font-weight:500; }
+.dsha-session-line { justify-content:space-between; gap:12px; padding-top:4px; }
+.dsha-session-line > div { flex:1; min-width:180px; }
+.dsha-session-line strong { font-size:13px; font-weight:500; }
+.dsha-btn,.dsha-icon-btn,.dsha-tabs button,.dsha-filters button { font:inherit; font-size:13px; line-height:1.4; padding:8px 13px; min-height:36px; border-radius:8px; border:1px solid var(--ad-border); background:var(--ad-bg); color:var(--ad-text); cursor:pointer; }
+.dsha-btn:hover:not(:disabled),.dsha-icon-btn:hover:not(:disabled) { background:var(--ad-hover); }
+.dsha-btn.primary { background:var(--ad-brand); border-color:var(--ad-brand); color:#fff; }
+.dsha-btn.primary:hover:not(:disabled) { filter:brightness(1.08); background:var(--ad-brand); }
+.dsha-btn.ghost { border-color:transparent; background:transparent; }
+.dsha-btn.danger { background:var(--ad-error); border-color:var(--ad-error); color:#fff; }
+.dsha-btn:disabled,.dsha-icon-btn:disabled,.dsha-fields:disabled { opacity:.55; cursor:default; }
+.dsha-icon-btn { border:0; width:36px; height:36px; padding:0; flex:none; font-size:23px; background:transparent; }
+.dsha-page :focus-visible,.dsha-dock :focus-visible,.dsha-panel :focus-visible,.dsha-consult :focus-visible,.dsha-hd:focus-visible,.dsha-entry:focus-visible { outline:2px solid var(--ad-brand); outline-offset:3px; }
+.dsha-switch { flex:none; display:flex; align-items:center; gap:8px; border:0; background:none; color:var(--ad-text); font:inherit; font-size:12px; cursor:pointer; padding:8px 0 8px 8px; }
+.dsha-switch-track { width:36px; height:22px; border-radius:12px; background:var(--ad-muted); padding:3px; display:block; }
+.dsha-switch-track:after { content:''; display:block; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .15s; }
+.dsha-switch[aria-checked="true"] .dsha-switch-track { background:var(--ad-brand); }
+.dsha-switch[aria-checked="true"] .dsha-switch-track:after { transform:translateX(14px); }
+.dsha-savebar { position:sticky; bottom:0; display:flex; align-items:center; gap:8px; padding:16px 0; background:var(--ad-bg); border-top:1px solid var(--ad-border); z-index:2; }
+.dsha-save-state { flex:1; font-size:12px; color:var(--ad-muted); }
+.dsha-save-state[role=alert] { color:var(--ad-error); }
+.dsha-callout { border-left:3px solid var(--ad-border); background:var(--ad-soft); border-radius:0 8px 8px 0; padding:12px 14px; font-size:12px; line-height:1.65; margin:0; overflow-wrap:anywhere; }
+.dsha-callout.err { border-color:var(--ad-error); }
+.dsha-callout.warn { border-color:var(--ad-warn); }
+.dsha-callout p { margin:0 0 8px; }
+.dsha-details > summary { cursor:pointer; font-size:13px; font-weight:500; padding:4px 0; }
+.dsha-details > summary .dsha-note { display:inline; margin-left:10px; font-weight:400; }
+.dsha-details[open] > summary { margin-bottom:14px; }
+.dsha-details > .dsha-note { margin:12px 0; }
+.dsha-details .dsha-grid + p { margin-top:12px; }
+.dsha-hdwrap { display:inline-flex; position:relative; }
+.dsha-hd,.dsha-entry { display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:12px; padding:7px 12px; min-height:34px; border:1px solid var(--ad-border); border-radius:999px; background:transparent; color:var(--ad-muted); cursor:pointer; }
+.dsha-hd,.dsha-entry { white-space:nowrap; flex-shrink:0; }
+.dsha-hd:hover,.dsha-entry:hover { color:var(--ad-text); background:var(--ad-soft); }
+.dsha-hd.brand,.dsha-entry[data-open="true"] { color:var(--ad-brand); border-color:color-mix(in srgb,var(--ad-brand) 40%,var(--ad-border)); background:color-mix(in srgb,var(--ad-brand) 7%,var(--ad-bg)); }
+.dsha-hd.warn { color:var(--ad-warn); } .dsha-hd.err { color:var(--ad-error); }
+.dsha-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:currentColor; flex:none; }
+.dsha-dot.ok { color:var(--ad-ok); } .dsha-dot.warn { color:var(--ad-warn); } .dsha-dot.err { color:var(--ad-error); }
+.dsha-panel { position:fixed; right:24px; top:72px; z-index:100; display:flex; flex-direction:column; width:min(600px,calc(100vw - 48px)); max-height:calc(100dvh - 96px); border:1px solid var(--ad-border); border-radius:16px; background:var(--dsw-alias-bg-overlay,var(--ad-bg)); box-shadow:0 16px 64px #0002; overflow:hidden; }
+.dsha-panel-head,.dsha-dock-head { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 22px 16px; flex:none; }
+.dsha-panel-head h2,.dsha-dock-head h2 { margin-top:3px; }
+.dsha-panel-actions { display:flex; gap:4px; }
+.dsha-tabs { display:flex; flex-wrap:wrap; gap:4px; }
+.dsha-tabs button { background:transparent; border-color:transparent; color:var(--ad-muted); }
+.dsha-tabs button[aria-pressed="true"] { color:var(--ad-brand); background:color-mix(in srgb,var(--ad-brand) 8%,var(--ad-bg)); font-weight:500; }
+.dsha-panel-tabs { padding:0 22px 14px; border-bottom:1px solid var(--ad-border); flex:none; }
+.dsha-panel-body { padding:22px; display:flex; flex-direction:column; gap:16px; overflow:auto; min-height:0; overscroll-behavior:contain; }
+.dsha-panel-footer,.dsha-dock-footer { padding:14px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-top:1px solid var(--ad-border); background:var(--ad-bg); flex:none; }
+.dsha-panel-footer .dsha-btn { flex:none; }
+.dsha-panel-footer .dsha-note { max-width:300px; }
+.dsha-consult { display:flex; flex-direction:column; gap:18px; min-width:0; }
+.dsha-consult-head { display:flex; flex-direction:column; gap:8px; }
+.dsha-factline { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.dsha-status { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:500; }
+.dsha-when,.dsha-prov { font-size:12px; color:var(--ad-muted); margin:0; overflow-wrap:anywhere; }
+.dsha-question-title { font-size:18px; overflow-wrap:anywhere; }
+.dsha-advice { font-size:14px; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; margin:0; }
+.dsha-outcome-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; background:var(--ad-soft); padding:14px; border-radius:10px; }
+.dsha-outcome-grid strong { font-size:12px; font-weight:500; }
+.dsha-quote { margin:0; padding:4px 0 4px 12px; border-left:2px solid var(--ad-border); font-size:13px; color:var(--ad-muted); white-space:pre-wrap; overflow-wrap:anywhere; }
+.dsha-card-actions { gap:4px; }
+.dsha-verdict-form { border-top:1px solid var(--ad-border); padding-top:18px; display:flex; flex-direction:column; gap:14px; }
+.dsha-verdict-form .dsha-fields { display:flex; flex-direction:column; gap:14px; }
+.dsha-filters { display:flex; flex-wrap:wrap; gap:6px; }
+.dsha-filters button { font-size:12px; min-height:32px; padding:5px 10px; border-color:transparent; color:var(--ad-muted); }
+.dsha-filters button[aria-pressed=true] { color:var(--ad-text); background:var(--ad-hover); }
+.dsha-list { display:flex; flex-direction:column; gap:8px; }
+.dsha-history-item { text-align:left; border:1px solid var(--ad-border); border-radius:10px; padding:14px; background:transparent; color:var(--ad-text); font:inherit; cursor:pointer; display:flex; flex-direction:column; gap:7px; width:100%; }
+.dsha-history-item:hover { background:var(--ad-soft); }
+.dsha-history-top { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ad-muted); }
+.dsha-history-top strong { font-weight:500; }
+.dsha-history-top time { margin-left:auto; white-space:nowrap; }
+.dsha-history-item[data-owed="true"] .dsha-history-top strong { color:var(--ad-brand); }
+.dsha-history-question { font-size:14px; overflow-wrap:anywhere; }
+.dsha-empty { padding:42px 16px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.dsha-empty-symbol { font-size:32px; color:var(--ad-brand); }
+.dsha-empty .dsha-note { max-width:310px; }
+.dsha-dock { margin:8px 0; border:1px solid var(--ad-border); border-radius:14px; background:var(--ad-bg); max-height:min(76dvh,740px); overflow:auto; overscroll-behavior:contain; width:100%; min-width:0; }
+.dsha-dock > .dsha-fields { padding:0 22px 18px; display:flex; flex-direction:column; gap:16px; }
+.dsha-progress { list-style:none; padding:0 22px; margin:0 0 20px; display:flex; gap:24px; color:var(--ad-muted); font-size:12px; }
+.dsha-progress li { display:flex; align-items:center; gap:8px; }
+.dsha-progress li > span { display:grid; place-items:center; width:22px; height:22px; border:1px solid var(--ad-border); border-radius:50%; font-size:11px; }
+.dsha-progress li[aria-current] { color:var(--ad-brand); }
+.dsha-progress li[aria-current] > span { background:var(--ad-brand); border-color:var(--ad-brand); color:#fff; }
+.dsha-scope-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12px; }
+.dsha-scope { display:flex; flex-wrap:wrap; gap:8px 18px; }
+.dsha-scope-option { display:flex; align-items:center; gap:7px; font-size:12px; cursor:pointer; }
+.dsha-dock input[type=checkbox] { margin:0; }
+.dsha-preview { border-top:1px solid var(--ad-border); padding:18px 22px; display:flex; flex-direction:column; gap:10px; }
+.dsha-preview-question { font-size:14px; font-weight:500; overflow-wrap:anywhere; }
+.dsha-material-status { display:flex; gap:4px 14px; flex-wrap:wrap; }
+.dsha-pre { font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,'Microsoft YaHei','PingFang SC','Noto Sans SC',monospace; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--ad-soft); color:var(--ad-text); border-radius:8px; padding:14px; max-height:240px; overflow:auto; margin:0; }
+.dsha-dock > .dsha-callout { margin:0 22px 16px; }
+.dsha-dock-footer { position:sticky; bottom:0; }
+.dsha-running { display:flex; align-items:center; gap:12px; padding:20px 0; font-size:13px; }
+.dsha-spinner { width:20px; height:20px; border:2px solid var(--ad-border); border-top-color:var(--ad-brand); border-radius:50%; animation:dsha-spin 1s linear infinite; flex:none; }
+.dsha-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+@keyframes dsha-spin { to { transform:rotate(360deg); } }
+@media(max-width:600px) {
+ .dsha-page { padding:4px 8px 20px; } .dsha-page-head { gap:12px; } .dsha-page h1 { font-size:24px; }
+ .dsha-choices,.dsha-choices.two,.dsha-grid.two { grid-template-columns:1fr; }
+ .dsha-material-grid { grid-template-columns:1fr; gap:6px; }
+ .dsha-choice { padding:12px; } .dsha-section { padding:22px 0; }
+ .dsha-savebar { flex-wrap:wrap; } .dsha-save-state { flex-basis:100%; }
+ .dsha-panel { right:12px; left:12px; top:64px; width:auto; max-height:calc(100dvh - 76px); border-radius:12px; }
+ .dsha-panel-head,.dsha-dock-head,.dsha-panel-body { padding:16px; }
+ .dsha-panel-tabs { padding:0 16px 12px; }
+ .dsha-panel-footer,.dsha-dock-footer { padding:12px 16px; gap:10px; }
+ .dsha-dock-footer { flex-wrap:wrap; } .dsha-dock-footer > .dsha-row { margin-left:auto; }
+ .dsha-dock > .dsha-fields,.dsha-preview { padding:0 16px 16px; }
+ .dsha-preview { padding-top:16px; } .dsha-progress { padding:0 16px; gap:16px; }
+ .dsha-outcome-grid { gap:8px; padding:12px; } .dsha-panel-footer .dsha-note { font-size:11px; }
+}
+@media(prefers-reduced-motion:reduce) { .dsha-spinner { animation:none; } .dsha-switch-track:after { transition:none; } }
 `;
 
     function ensureStyle() {
@@ -562,25 +745,6 @@ window.__ModuleLoader__.load({
       return Boolean(record && NON_TERMINAL.has(record.state));
     }
 
-    function fmtTime(iso) {
-      if (!iso) return '';
-      const date = new Date(iso);
-      if (Number.isNaN(date.getTime())) return '';
-      const pad = (n) => String(n).padStart(2, '0');
-      return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    }
-
-    function fmtAgo(iso, now) {
-      if (!iso) return '';
-      const at = new Date(iso).getTime();
-      if (!Number.isFinite(at)) return '';
-      const seconds = Math.max(0, Math.round((now - at) / 1000));
-      if (seconds < 60) return `${seconds}s`;
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m`;
-      return `${Math.floor(minutes / 60)}h`;
-    }
-
     /**
      * One tiny store per session, shared by the five slots.
      *
@@ -588,6 +752,14 @@ window.__ModuleLoader__.load({
      * separate React roots; without a shared read they would each poll the host
      * and disagree about whether a consultation is running.
      */
+    function fmtDateTime(iso) {
+      const date = new Date(iso);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString(undefined, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+    function needsReview(record) {
+      return Boolean(record.advice && !isPending(record) && !['confirmed', 'rejected'].includes(record.verification) && !['fixed', 'deferred'].includes(record.disposition));
+    }
+
     function createStore() {
       const state = new Map();
       const listeners = new Map();
@@ -619,7 +791,10 @@ window.__ModuleLoader__.load({
           if (set) set.delete(fn);
         };
       }
-      return { read, write, subscribe, emit };
+      function updateSettings(settings) {
+        for (const id of state.keys()) write(id, { settings });
+      }
+      return { read, write, subscribe, emit, updateSettings };
     }
 
     const store = createStore();
@@ -727,7 +902,13 @@ window.__ModuleLoader__.load({
         throw error;
       };
 
-      async function load(sessionId) {
+      const loads = new Map();
+      function load(sessionId) {
+        if (!sessionId) return Promise.resolve(null);
+        if (!loads.has(sessionId)) loads.set(sessionId, readSession(sessionId).finally(() => loads.delete(sessionId)));
+        return loads.get(sessionId);
+      }
+      async function readSession(sessionId) {
         if (!sessionId) return null;
         try {
           const [settingsResult, listResult] = await Promise.all([
@@ -765,11 +946,12 @@ window.__ModuleLoader__.load({
         try {
           const listResult = await rpcCall('consult.list', { sessionId });
           store.write(sessionId, {
+            error: null,
             records: (listResult && listResult.records) || [],
             running: (listResult && listResult.running) || 0,
           });
-        } catch {
-          /* a transient list failure must not blank the card */
+        } catch (err) {
+          store.write(sessionId, { error: String(err.message || err) });
         }
       }
 
@@ -874,540 +1056,187 @@ window.__ModuleLoader__.load({
 
     // ---------------------------------------------------------------- settings
 
-    function Field(props) {
-      return h(
-        'label',
-        { className: 'dsha-block', style: { gap: '4px' } },
-        h('span', { className: 'dsha-label' }, props.label),
-        props.children,
-        props.hint ? h('span', { className: 'dsha-hint' }, props.hint) : null,
-      );
-    }
-
-    function Radio(props) {
-      return h(
-        'label',
-        { className: 'dsha-option' },
-        h('input', {
-          type: 'radio',
-          name: props.name,
-          checked: props.checked,
-          onChange: props.onChange,
-        }),
-        h(
-          'span',
-          null,
-          props.title,
-          props.hint ? h('span', { className: 'dsha-option-hint' }, ` — ${props.hint}`) : null,
-        ),
-      );
-    }
-
+    let settingsDraft = null;
     function SettingsSection(props) {
-      const { t, rpcCall, close } = props;
-      const [settings, setSettings] = useState(null);
-      const [catalogue, setCatalogue] = useState({ providers: [], models: {} });
-      const [resolved, setResolved] = useState(null);
-      const [status, setStatus] = useState(null);
-      const [error, setError] = useState(null);
+      const { t, rpcCall, getService } = props;
       const [saved, setSaved] = useState(null);
-      const [check, setCheck] = useState(null);
-      const [checking, setChecking] = useState(false);
+      const [draft, setDraft] = useState(null);
+      const [catalogue, setCatalogue] = useState({ providers: [], models: {}, catalogueErrors: {} });
       const [sessionId, setSessionId] = useState(null);
-      const [granted, setGranted] = useState(false);
-      const [sessionSelection, setSessionSelection] = useState(null);
-      // Deleting the history is the one action here that cannot be undone, and
-      // the record it deletes is the only place an unverified opinion exists. So
-      // it takes two clicks: the first turns the button into the question.
+      const [selection, setSelection] = useState(null);
+      const [error, setError] = useState('');
+      const [message, setMessage] = useState('');
+      const [busy, setBusy] = useState(false);
+      const [checking, setChecking] = useState(false);
+      const [check, setCheck] = useState(null);
       const [clearArmed, setClearArmed] = useState(false);
+      const formRef = useRef(null);
+      const lock = useRef(false);
+      const dirty = Boolean(saved && JSON.stringify(saved) !== JSON.stringify(draft));
 
-      // The switch lives in the same settings file as everything else, but the
-      // composer entry, card and header chip read it from the shared store: they
-      // are separate slot cells and never see this component's state. Writing it
-      // through means turning the plugin off takes effect in the conversation
-      // immediately, instead of after the next full reload.
-      function publishEnabled(next) {
-        if (!next) return;
-        setEnabledGlobal(next.enabled === false ? false : true);
-        if (!sessionId) return;
-        const current = store.read(sessionId);
-        store.write(sessionId, { settings: { ...(current.settings || {}), ...next }, loaded: true });
+      function publish(next) {
+        setEnabledGlobal(next.enabled !== false);
+        store.updateSettings(next);
       }
-
-      const applyResult = useCallback((value) => {
-        if (!value) return;
-        setSettings(value.settings);
-        setStatus(value.status);
-        setResolved(value.resolved);
-        setGranted(Boolean(value.sessionGranted));
-        setSessionSelection(value.sessionSelection || null);
-        if (value.providers) setCatalogue({ providers: value.providers, models: value.models || {} });
-        publishEnabled(value.settings);
-      }, [sessionId]);
-
-      // The settings section is root-scoped, so it has no sessionId of its own.
-      // It reads the currently open session from the UI session service when one
-      // is available, because "actually used" and the session grant are both
-      // per-session facts and showing them globally would be a lie.
+      const load = useCallback(async () => {
+        setError('');
+        try {
+          const id = getService?.('uiSession')?.adapter?.current?.getSnapshot?.()?.sessionId || null;
+          const value = await rpcCall('settings.get', { sessionId: id });
+          const restored = settingsDraft && JSON.stringify(settingsDraft.saved) === JSON.stringify(value.settings);
+          setSessionId(id); setSaved(value.settings); setDraft(restored ? settingsDraft.draft : value.settings);
+          setSelection(value.sessionSelection); setCatalogue(value); publish(value.settings);
+        } catch (err) { setError(String(err.message || err)); }
+      }, [rpcCall, getService]);
+      useEffect(() => { load(); }, [load]);
       useEffect(() => {
-        let cancelled = false;
-        (async () => {
-          let current = null;
-          try {
-            const uiSession = ctx_get('uiSession');
-            current = uiSession?.adapter?.current?.getSnapshot?.()?.sessionId ?? null;
-          } catch {
-            current = null;
-          }
-          if (cancelled) return;
-          setSessionId(current);
-          try {
-            const value = await rpcCall('settings.get', { sessionId: current });
-            if (!cancelled) applyResult(value);
-          } catch (err) {
-            if (!cancelled) setError(String(err && err.message ? err.message : err));
-          }
-        })();
-        return () => {
-          cancelled = true;
-        };
-      }, [applyResult, rpcCall]);
+        if (saved && draft) settingsDraft = dirty ? { saved, draft } : null;
+      }, [saved, draft, dirty]);
+      useEffect(() => {
+        if (!dirty) return undefined;
+        const warn = event => { event.preventDefault(); event.returnValue = ''; };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+      }, [dirty]);
 
-      function ctx_get(name) {
-        try {
-          return props.getService ? props.getService(name) : null;
-        } catch {
-          return null;
-        }
+      function edit(patch) {
+        setDraft(prev => ({ ...prev, ...patch,
+          target: { ...prev.target, ...patch.target },
+          materials: { ...prev.materials, ...patch.materials },
+          advanced: { ...prev.advanced, ...patch.advanced },
+        }));
+        setMessage(''); setCheck(null);
       }
-
-      const patch = useCallback(
-        async (change) => {
-          try {
-            const value = await rpcCall('settings.patch', { patch: change });
-            setSettings(value.settings);
-            publishEnabled(value.settings);
-            setSaved(Date.now());
-            setError(null);
-            // Re-read so "actually used" reflects the new target rather than a
-            // locally recomputed guess.
-            const fresh = await rpcCall('settings.get', { sessionId });
-            applyResult(fresh);
-          } catch (err) {
-            setError(String(err && err.message ? err.message : err));
-            setSaved(null);
-          }
-        },
-        [applyResult, rpcCall, sessionId],
-      );
-
-      async function toggleGrant() {
+      async function save(event) {
+        event?.preventDefault();
+        if (lock.current || !formRef.current?.reportValidity()) return;
+        lock.current = true; setBusy(true); setError('');
         try {
-          const value = await rpcCall('settings.grant', { sessionId, granted: !granted });
-          setSettings(value.settings);
-          setGranted(Boolean(value.granted));
-        } catch (err) {
-          setError(String(err && err.message ? err.message : err));
-        }
+          const value = await rpcCall('settings.patch', { patch: draft });
+          setSaved(value.settings); setDraft(value.settings); publish(value.settings);
+          setMessage(t('saved')); setCheck(null);
+        } catch (err) { setError(`${t('saveFailed')}：${String(err.message || err)}`); }
+        finally { lock.current = false; setBusy(false); }
       }
-
+      // The master switch is immediate, even when unrelated fields are unsaved.
+      async function toggleEnabled() {
+        if (lock.current) return;
+        lock.current = true; setBusy(true); setError('');
+        try {
+          const value = await rpcCall('settings.patch', { patch: { enabled: !saved.enabled } });
+          setSaved(value.settings); setDraft(prev => ({ ...prev, enabled: value.settings.enabled }));
+          publish(value.settings); setMessage(value.settings.enabled ? t('enabledNow') : t('disabledNow'));
+        } catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
+      }
       async function runCheck() {
-        setChecking(true);
-        setCheck(null);
-        try {
-          const value = await rpcCall('check.connection', { sessionId });
-          setCheck(value);
-        } catch (err) {
-          setCheck({ ok: false, code: 'exception', message: String(err && err.message ? err.message : err) });
-        } finally {
-          setChecking(false);
-        }
+        if (dirty || lock.current) return;
+        lock.current = true; setChecking(true); setCheck(null);
+        try { setCheck(await rpcCall('check.connection', { sessionId })); }
+        catch (err) { setCheck({ ok: false, message: String(err.message || err) }); }
+        finally { lock.current = false; setChecking(false); }
       }
-
+      async function grant() {
+        if (!sessionId || lock.current || dirty) return;
+        lock.current = true; setBusy(true); setError('');
+        try {
+          const value = await rpcCall('settings.grant', { sessionId, granted: !saved.sessionGrants?.[sessionId] });
+          setSaved(value.settings); setDraft(value.settings); publish(value.settings);
+          setMessage(value.granted ? t('grantOn') : t('grantOff'));
+        } catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
+      }
       async function clearHistory() {
-        if (!clearArmed) {
-          setClearArmed(true);
-          return;
-        }
+        if (!sessionId || lock.current) return;
+        lock.current = true; setBusy(true); setError('');
         try {
           await rpcCall('consult.clear', { sessionId });
-          setClearArmed(false);
-          setCheck((prev) => prev);
-          setSaved(Date.now());
-        } catch (err) {
-          setClearArmed(false);
-          setError(String(err && err.message ? err.message : err));
-        }
+          store.write(sessionId, { records: [], selectedId: null });
+          setClearArmed(false); setMessage(t('clearDone'));
+        } catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
       }
-
-      if (error && !settings) {
-        return h(
-          'div',
-          { className: 'dsha-page' },
-          h('div', { className: 'dsha-note err' }, `${t('loadFailed')}: ${error}`),
-        );
-      }
-      if (!settings) {
-        return h('div', { className: 'dsha-page' }, h('div', { className: 'dsha-note' }, t('starting')));
-      }
-
-      const tone = status === 'ready' ? 'ok' : status === 'needs-model' ? 'warn' : 'err';
-      const statusText =
-        status === 'ready' ? t('statusReady') : status === 'needs-model' ? t('statusNeedsModel') : t('statusBroken');
-      const statusNote =
-        status === 'ready' ? t('statusNoteReady') : status === 'needs-model' ? t('statusNoteNeeds') : t('statusNoteBroken');
-
-      const providers = catalogue.providers || [];
-      const modelsFor = (providerId) => (catalogue.models && catalogue.models[providerId]) || [];
-      const targetMode = settings.target.mode === 'fixed' ? 'fixed' : 'session';
-      const chosenProvider = settings.target.provider || (providers[0] && providers[0].id) || '';
-      const chosenModel = settings.target.model || (modelsFor(chosenProvider)[0] && modelsFor(chosenProvider)[0].id) || '';
-
-      const materialKeys = ['question', 'selection', 'plan', 'diff', 'test'];
-      const materialLabels = {
-        question: t('materialQuestion'),
-        selection: t('materialSelection'),
-        plan: t('materialPlan'),
-        diff: t('materialDiff'),
-        test: t('materialTest'),
-      };
-
-      return h(
-        'div',
-        { className: 'dsha-page' },
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('h1', { className: 'dsha-h1' }, t('pageTitle')),
-          h('p', { className: 'dsha-hint' }, t('pageHint')),
-        ),
-
-        // 0. master switch -----------------------------------------------------
-        // First block on purpose: someone who wants the plugin gone should not
-        // have to read six sections of preferences to find the off switch.
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h(
-            'label',
-            { className: 'dsha-option' },
-            h('input', {
-              type: 'checkbox',
-              checked: settings.enabled !== false,
-              onChange: () => patch({ enabled: settings.enabled === false }),
-            }),
-            h('span', null, t('enabledLabel')),
-          ),
-          h('p', { className: 'dsha-note' }, t('enabledHint')),
-        ),
-
-        // 1. status ------------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('statusLabel')),
-          h(
-            'div',
-            { className: 'dsha-row' },
-            h('span', { className: 'dsha-status' }, h('span', { className: `dsha-dot ${tone}` }), statusText),
-            resolved && resolved.label
-              ? h('span', { className: 'dsha-note' }, `${t('modelResolved')}: ${resolved.label}`)
-              : null,
-          ),
-          h('p', { className: 'dsha-note' }, statusNote),
-        ),
-
-        // 2. mode --------------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('modeLabel')),
-          h(Radio, {
-            name: 'dsha-mode',
-            checked: settings.mode === 'manual',
-            onChange: () => patch({ mode: 'manual' }),
-            title: t('modeManual'),
-            hint: t('modeManualHint'),
-          }),
-          h(Radio, {
-            name: 'dsha-mode',
-            checked: settings.mode === 'confirm',
-            onChange: () => patch({ mode: 'confirm' }),
-            title: t('modeConfirm'),
-            hint: t('modeConfirmHint'),
-          }),
-          h(Radio, {
-            name: 'dsha-mode',
-            checked: settings.mode === 'auto',
-            onChange: () => patch({ mode: 'auto' }),
-            title: t('modeAuto'),
-            hint: t('modeAutoHint'),
-          }),
-          sessionId
-            ? h(
-                'div',
-                { className: 'dsha-row' },
-                h('span', { className: 'dsha-note' }, granted ? t('grantOn') : t('grantOff')),
-                h(
-                  'button',
-                  { className: 'dsha-btn tiny', type: 'button', onClick: toggleGrant },
-                  granted ? t('revokeButton') : t('grantButton'),
-                ),
-              )
-            : null,
-          h('p', { className: 'dsha-note' }, t('grantHint')),
-        ),
-
-        // 3. model -------------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('modelLabel')),
-          h(Radio, {
-            name: 'dsha-target',
-            checked: targetMode === 'session',
-            onChange: () => patch({ target: { mode: 'session', provider: null, model: null } }),
-            title: t('modelFollowSession'),
-          }),
-          sessionSelection
-            ? h('span', { className: 'dsha-note' }, `${sessionSelection.provider}/${sessionSelection.model}`)
-            : h('span', { className: 'dsha-note' }, t('modelMissing')),
-          h('p', { className: 'dsha-note' }, t('modelFollowHint')),
-          h(Radio, {
-            name: 'dsha-target',
-            checked: targetMode === 'fixed',
-            onChange: () =>
-              patch({
-                target: { mode: 'fixed', provider: chosenProvider || null, model: chosenModel || null },
-              }),
-            title: t('modelFixed'),
-          }),
-          h(
-            'div',
-            { className: 'dsha-row' },
-            h('span', { className: 'dsha-note' }, t('modelProvider')),
-            h(
-              'select',
-              {
-                className: 'dsha-select',
-                value: settings.target.provider || '',
-                disabled: targetMode !== 'fixed',
-                onChange: (event) => {
-                  const provider = event.target.value;
-                  const models = modelsFor(provider);
-                  patch({
-                    target: {
-                      mode: 'fixed',
-                      provider: provider || null,
-                      model: (models[0] && models[0].id) || null,
-                    },
-                  });
-                },
-              },
-              h('option', { value: '' }, '—'),
-              providers.map((provider) =>
-                h('option', { key: provider.id, value: provider.id }, provider.label || provider.id),
-              ),
-            ),
-            h('span', { className: 'dsha-note' }, t('modelName')),
-            h(
-              'select',
-              {
-                className: 'dsha-select',
-                value: settings.target.model || '',
-                disabled: targetMode !== 'fixed',
-                onChange: (event) =>
-                  patch({
-                    target: {
-                      mode: 'fixed',
-                      provider: settings.target.provider || chosenProvider || null,
-                      model: event.target.value || null,
-                    },
-                  }),
-              },
-              h('option', { value: '' }, '—'),
-              modelsFor(settings.target.provider || chosenProvider).map((model) =>
-                h('option', { key: model.id, value: model.id }, model.label || model.id),
-              ),
-            ),
-          ),
-        ),
-
-        // 4. materials ---------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('materialsLabel')),
-          h('p', { className: 'dsha-hint' }, t('materialsHint')),
-          h(
-            'div',
-            { className: 'dsha-row', style: { gap: '14px' } },
-            materialKeys.map((kind) =>
-              h(
-                'label',
-                { key: kind, className: 'dsha-option' },
-                h('input', {
-                  type: 'checkbox',
-                  checked: Boolean(settings.materials[kind]),
-                  onChange: () => {
-                    const next = { ...settings.materials, [kind]: !settings.materials[kind] };
-                    // The question is the one material that cannot be dropped:
-                    // without it the advisor has nothing to answer.
-                    if (kind === 'question' && !next.question) next.question = true;
-                    patch({ materials: next });
-                  },
-                }),
-                h('span', null, materialLabels[kind]),
-              ),
-            ),
-          ),
-        ),
-
-        // 5. delivery ----------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('deliveryLabel')),
-          h(Radio, {
-            name: 'dsha-delivery',
-            checked: settings.delivery === 'show',
-            onChange: () => patch({ delivery: 'show' }),
-            title: t('deliveryShow'),
-            hint: t('deliveryShowHint'),
-          }),
-          h(Radio, {
-            name: 'dsha-delivery',
-            checked: settings.delivery === 'return',
-            onChange: () => patch({ delivery: 'return' }),
-            title: t('deliveryReturn'),
-            hint: t('deliveryReturnHint'),
-          }),
-        ),
-
-        // 6. advanced ----------------------------------------------------------
-        h(
-          'div',
-          { className: 'dsha-block' },
-          h('span', { className: 'dsha-label' }, t('advancedLabel')),
-          h(
-            'div',
-            { className: 'dsha-row', style: { gap: '16px' } },
-            h(Field, { label: t('advancedTokens') },
-              h('input', {
-                className: 'dsha-input dsha-num',
-                type: 'number',
-                min: 64,
-                value: settings.advanced.maxAdviceTokens,
-                onChange: (event) => {
-                  const value = Number(event.target.value);
-                  if (!Number.isFinite(value) || value <= 0) return;
-                  patch({ advanced: { maxAdviceTokens: Math.round(value) } });
-                },
-              }),
-            ),
-            h(Field, { label: t('advancedDeadline') },
-              h('input', {
-                className: 'dsha-input dsha-num',
-                type: 'number',
-                min: 1000,
-                step: 1000,
-                value: settings.advanced.consultDeadlineMs,
-                onChange: (event) => {
-                  const value = Number(event.target.value);
-                  if (!Number.isFinite(value) || value < 0) return;
-                  patch({ advanced: { consultDeadlineMs: Math.round(value) } });
-                },
-              }),
-            ),
-          ),
-          h(
-            'div',
-            { className: 'dsha-row', style: { gap: '16px' } },
-            h(Field, { label: t('advancedBudget') },
-              h('input', {
-                className: 'dsha-input dsha-num',
-                type: 'number',
-                min: 0,
-                value: settings.advanced.maxConsultationsPerSession,
-                onChange: (event) => {
-                  const value = Number(event.target.value);
-                  if (!Number.isFinite(value) || value < 0) return;
-                  patch({ advanced: { maxConsultationsPerSession: Math.round(value) } });
-                },
-              }),
-            ),
-            h(Field, { label: t('advancedHistory') },
-              h('input', {
-                className: 'dsha-input dsha-num',
-                type: 'number',
-                min: 1,
-                value: settings.advanced.historyLimit,
-                onChange: (event) => {
-                  const value = Number(event.target.value);
-                  if (!Number.isFinite(value) || value < 1) return;
-                  patch({ advanced: { historyLimit: Math.round(value) } });
-                },
-              }),
-            ),
-          ),
-          h('p', { className: 'dsha-note' }, t('advancedHint')),
-        ),
-
-        // 7. connection check + history ---------------------------------------
-        h(
-          'div',
-          { className: 'dsha-card' },
-          h('span', { className: 'dsha-label' }, t('checkLabel')),
-          h('p', { className: 'dsha-note' }, t('checkHint')),
-          h(
-            'div',
-            { className: 'dsha-row' },
-            h(
-              'button',
-              { className: 'dsha-btn', type: 'button', onClick: runCheck, disabled: checking },
-              checking ? t('checking') : t('checkButton'),
-            ),
-            h(
-              'button',
-              {
-                className: clearArmed ? 'dsha-btn danger' : 'dsha-btn ghost',
-                type: 'button',
-                onClick: clearHistory,
-                // Escape and blur both disarm: an armed destructive button must
-                // not survive a click elsewhere and fire later by surprise.
-                onBlur: () => setClearArmed(false),
-                onKeyDown: (event) => {
-                  if (event.key === 'Escape') setClearArmed(false);
-                },
-              },
-              clearArmed ? t('clearConfirm') : t('clearButton'),
-            ),
-            saved ? h('span', { className: 'dsha-note ok' }, t('saved')) : null,
-          ),
-          clearArmed ? h('p', { className: 'dsha-note err' }, `${t('clearWarn')} ${t('clearCancel')}`) : null,
-          check
-            ? h(
-                'p',
-                { className: `dsha-note ${check.ok ? 'ok' : 'err'}` },
-                check.ok
-                  ? `${t('checkOk')} · ${check.model} · ${check.elapsedMs}ms`
-                  : `${t('checkFail')} · ${check.code || ''} ${check.message || ''}`,
-              )
-            : null,
-          error ? h('p', { className: 'dsha-note err' }, `${t('saveFailed')}: ${error}`) : null,
-        ),
-
-        close
-          ? h(
-              'div',
-              { className: 'dsha-row' },
-              h('button', { className: 'dsha-btn ghost', type: 'button', onClick: close }, t('close')),
-            )
-          : null,
-      );
+      const button = (text, onClick, cls = '', disabled = false) => h('button', { type: 'button', className: `dsha-btn ${cls}`, onClick, disabled }, text);
+      if (!draft) return h('div', { className: 'dsha-page' },
+        h('h1', { className: 'dsha-h1' }, t('pageTitle')),
+        h('p', { role: error ? 'alert' : 'status', className: 'dsha-note' }, error || t('loading')),
+        error ? button(t('retry'), load) : null);
+      const target = draft.target;
+      const modelOptions = catalogue.models?.[target.provider] || [];
+      const actual = target.mode === 'fixed' ? target : selection;
+      const ready = Boolean(actual?.provider && actual?.model);
+      const granted = Boolean(saved.sessionGrants?.[sessionId] && Date.now() - saved.sessionGrants[sessionId].at < 86400000);
+      const choice = (name, value, current, title, hint, onChange) => h('label', {
+        className: 'dsha-choice', 'data-selected': current === value, key: value,
+      }, h('input', { type: 'radio', name, value, checked: current === value, onChange }),
+      h('span', null, h('strong', null, title), h('span', { className: 'dsha-hint' }, hint)));
+      const section = (step, title, hint, content) => h('section', { className: 'dsha-section' },
+        h('div', { className: 'dsha-section-title' }, h('span', { className: 'dsha-step' }, step),
+          h('div', null, h('h2', null, title), hint ? h('p', { className: 'dsha-hint' }, hint) : null)), content);
+      return h('form', { className: 'dsha-page', ref: formRef, onSubmit: save },
+        h('header', { className: 'dsha-page-head' }, h('div', null,
+          h('span', { className: 'dsha-eyebrow' }, t('settingsEyebrow')),
+          h('h1', { className: 'dsha-h1' }, t('pageTitle')), h('p', { className: 'dsha-hint' }, t('pageHint'))),
+          h('button', { type: 'button', className: 'dsha-switch', role: 'switch', 'aria-checked': saved.enabled,
+            'aria-label': t('enabledLabel'), disabled: busy || checking, onClick: toggleEnabled },
+            h('span', { className: 'dsha-switch-track' }), saved.enabled ? t('enabled') : t('disabled'))),
+        !saved.enabled ? h('p', { className: 'dsha-callout', role: 'status' }, t('disabledHint')) : null,
+        h('fieldset', { className: 'dsha-fields', disabled: busy || checking },
+          section('01', t('modelLabel'), t('modelSectionHint'), h('div', { className: 'dsha-block' },
+            h('div', { className: 'dsha-choices two' },
+              choice('dsha-target', 'session', target.mode, t('modelFollowSession'), t('modelFollowHint'), () => edit({ target: { mode: 'session' } })),
+              choice('dsha-target', 'fixed', target.mode, t('modelFixed'), t('modelFixedHint'), () => edit({ target: { mode: 'fixed' } }))),
+            target.mode === 'fixed' ? h('div', { className: 'dsha-grid two' },
+              h('label', { className: 'dsha-field' }, t('modelProvider'), h('select', { className: 'dsha-select', 'aria-label': t('modelProvider'), required: true, value: target.provider || '',
+                onChange: event => edit({ target: { provider: event.target.value, model: '' } }) },
+                h('option', { value: '' }, t('selectProvider')),
+                target.provider && !(catalogue.providers || []).some(p => p.id === target.provider) ? h('option', { value: target.provider }, target.provider) : null,
+                (catalogue.providers || []).map(p => h('option', { key: p.id, value: p.id }, p.label || p.id)))),
+              h('label', { className: 'dsha-field' }, t('modelName'), h('select', { className: 'dsha-select', 'aria-label': t('modelName'), required: true, disabled: !target.provider, value: target.model || '',
+                onChange: event => edit({ target: { model: event.target.value } }) }, h('option', { value: '' }, t('selectModel')),
+                target.model && !modelOptions.some(m => m.id === target.model) ? h('option', { value: target.model }, target.model) : null,
+                modelOptions.map(m => h('option', { key: m.id, value: m.id }, m.label || m.id))))) : null,
+            catalogue.catalogueErrors?.[target.provider] ? h('p', { className: 'dsha-note err', role: 'alert' }, catalogue.catalogueErrors[target.provider]) : null,
+            h('div', { className: 'dsha-model-summary' }, h('span', { className: `dsha-dot ${ready ? 'ok' : 'warn'}` }),
+              h('span', null, dirty ? t('afterSaving') : t('modelResolved')), h('strong', null, ready ? `${actual.provider} / ${actual.model}` : t('statusNeedsModel'))),
+            h('div', { className: 'dsha-row' }, button(checking ? t('checking') : t('checkButton'), runCheck, 'ghost', dirty || !ready || checking),
+              h('span', { className: 'dsha-note' }, dirty ? t('saveBeforeCheck') : t('checkHint'))),
+            check ? h('p', { role: 'status', className: `dsha-note ${check.ok ? 'ok' : 'err'}` }, check.ok ? `${t('checkOk')} · ${check.elapsedMs} ms` : `${t('checkFail')} · ${check.message || check.code}`) : null)),
+          section('02', t('modeLabel'), t('modeSectionHint'), h('div', { className: 'dsha-block' },
+            h('div', { className: 'dsha-choices' },
+              choice('dsha-mode', 'manual', draft.mode, t('modeManual'), t('modeManualHint'), () => edit({ mode: 'manual' })),
+              choice('dsha-mode', 'confirm', draft.mode, t('modeConfirm'), t('modeConfirmHint'), () => edit({ mode: 'confirm' })),
+              choice('dsha-mode', 'auto', draft.mode, t('modeAuto'), t('modeAutoHint'), () => edit({ mode: 'auto' }))),
+            draft.mode === 'auto' ? h('p', { className: 'dsha-callout' }, t('autoScopeHint')) : null,
+            h('div', { className: 'dsha-session-line' }, h('div', null, h('strong', null, t('grantLabel')),
+              h('p', { className: 'dsha-note' }, sessionId ? t('grantHint') : t('openSessionHint'))),
+              button(granted ? t('revokeButton') : t('grantButton'), grant, 'ghost', !sessionId || dirty || (!granted && draft.mode !== 'manual'))))),
+          section('03', t('materialsLabel'), t('materialsHint'), h('div', { className: 'dsha-material-grid' },
+            ['question', 'selection', 'plan', 'diff', 'test'].map(kind => h('label', { key: kind, className: 'dsha-material-choice' },
+              h('input', { type: 'checkbox', checked: kind === 'question' || draft.materials[kind], disabled: kind === 'question',
+                onChange: event => edit({ materials: { [kind]: event.target.checked } }) }),
+              h('span', null, h('strong', null, materialName(t, kind)), h('span', { className: 'dsha-note' }, t(`materialHint_${kind}`))))))),
+          section('04', t('deliveryLabel'), null, h('div', { className: 'dsha-choices two' },
+            choice('dsha-delivery', 'show', draft.delivery, t('deliveryShow'), t('deliveryShowHint'), () => edit({ delivery: 'show' })),
+            choice('dsha-delivery', 'return', draft.delivery, t('deliveryReturn'), t('deliveryReturnHint'), () => edit({ delivery: 'return' })))),
+          h('details', { className: 'dsha-section dsha-details' }, h('summary', null, t('advancedLabel'), h('span', { className: 'dsha-note' }, t('advancedSummary'))),
+            h('div', { className: 'dsha-grid two' },
+              [['maxAdviceTokens', 'advancedTokens', 64, 32000], ['consultDeadlineMs', 'timeoutSeconds', 0, 600], ['maxConsultationsPerSession', 'advancedBudget', 0, 10000], ['historyLimit', 'advancedHistory', 5, 500]].map(([key, label, min, max]) =>
+                h('label', { className: 'dsha-field', key }, t(label), h('input', { className: 'dsha-input', type: 'number', required: true, min, max, step: key === 'consultDeadlineMs' ? 0.001 : 1,
+                  value: key === 'consultDeadlineMs' && draft.advanced[key] !== '' ? draft.advanced[key] / 1000 : draft.advanced[key],
+                  onChange: event => edit({ advanced: { [key]: event.target.value === '' ? '' : Number(event.target.value) * (key === 'consultDeadlineMs' ? 1000 : 1) } }) })))),
+            h('p', { className: 'dsha-note' }, t('budgetHelp'))),
+          h('details', { className: 'dsha-section dsha-details', onKeyDown: event => { if (event.key === 'Escape') setClearArmed(false); } },
+            h('summary', null, t('historyManagement'), h('span', { className: 'dsha-note' }, t('sessionOnly'))),
+            h('p', { className: 'dsha-note' }, t('clearBudgetHint')),
+            !clearArmed ? button(t('clearButton'), () => setClearArmed(true), 'ghost', !sessionId) : h('div', { className: 'dsha-callout' },
+              h('p', null, t('clearWarn')), h('div', { className: 'dsha-row' }, button(t('clearCancel'), () => setClearArmed(false)), button(t('clearConfirm'), clearHistory, 'danger'))))),
+        h('footer', { className: 'dsha-savebar' },
+          h('div', { className: 'dsha-save-state', role: error ? 'alert' : 'status', 'aria-live': 'polite' },
+            error || (dirty ? t('unsaved') : message || t('settingsSaved'))),
+          button(t('discard'), () => { setDraft(saved); setMessage(''); setError(''); }, 'ghost', !dirty || busy || checking),
+          h('button', { type: 'submit', className: 'dsha-btn primary', disabled: !dirty || busy || checking }, busy ? t('saving') : t('saveSettings'))));
     }
-
-    // ------------------------------------------------------------- entry point
 
     function ConsultEntry(props) {
       const { t, sessionId, openConsult, consultOpen } = props;
@@ -1417,7 +1246,10 @@ window.__ModuleLoader__.load({
           type: 'button',
           className: 'dsha-entry',
           'data-open': consultOpen ? 'true' : 'false',
-          onClick: () => openConsult(sessionId),
+          'aria-expanded': consultOpen,
+          'data-advisor-entry': sessionId,
+          onMouseDown: () => { props.selectionRef.current = window.getSelection()?.toString() || ''; },
+          onClick: () => { openConsult(sessionId, props.selectionRef.current || window.getSelection()?.toString() || ''); props.selectionRef.current = ''; },
           title: t('consultTitle'),
         },
         t('consult'),
@@ -1426,199 +1258,132 @@ window.__ModuleLoader__.load({
 
     // ------------------------------------------------------- confirmation strip
 
+    const consultDrafts = new Map();
     function ConsultDock(props) {
-      const { t, sessionId, rpcCall, consultOpen, closeConsult, draft, reload } = props;
+      const { t, sessionId, rpcCall, consultOpen, closeConsult, draft, reload, initialSelection } = props;
       const view = useStore(sessionId);
-      const [question, setQuestion] = useState('');
-      const [focus, setFocus] = useState('general');
+      const keptDraft = consultDrafts.get(sessionId);
+      const [question, setQuestion] = useState(keptDraft?.question || '');
+      const [focus, setFocus] = useState(keptDraft?.focus || 'general');
+      const [selectionText, setSelectionText] = useState(keptDraft?.selectionText || '');
+      const [materials, setMaterials] = useState(keptDraft?.materials || { question: true, selection: true, plan: true, diff: true, test: true });
+      useEffect(() => {
+        if (question || selectionText) consultDrafts.set(sessionId, { question, focus, selectionText, materials });
+        else consultDrafts.delete(sessionId);
+      }, [sessionId, question, focus, selectionText, materials]);
       const [preview, setPreview] = useState(null);
-      const [showText, setShowText] = useState(false);
       const [busy, setBusy] = useState(false);
-      const [error, setError] = useState(null);
-
-      // Opening the strip seeds the question from the composer draft: the user
-      // has usually already typed the thing they want reviewed, and making them
-      // type it twice is how an entry point stops being used.
+      const [error, setError] = useState('');
+      const inputRef = useRef(null);
+      const dockRef = useRef(null);
+      const previewRef = useRef(null);
+      const lock = useRef(false);
+      const revision = useRef(0);
+      const settingsKey = JSON.stringify(view.settings || {});
+      const requestKey = JSON.stringify({ question, focus, selectionText, materials, settingsKey });
+      useEffect(() => {
+        revision.current += 1; setPreview(null);
+      }, [requestKey, sessionId]);
       useEffect(() => {
         if (!consultOpen) return;
-        setQuestion((current) => (current === '' ? String(draft || '') : current));
-        setError(null);
-      }, [consultOpen, draft]);
-
-      const kindLabels = {
-        question: t('materialQuestion'),
-        selection: t('materialSelection'),
-        plan: t('materialPlan'),
-        diff: t('materialDiff'),
-        test: t('materialTest'),
-      };
-
-      // Editing a question or switching sessions invalidates the approval.
+        if (view.retryRequest) {
+          setQuestion(view.retryRequest.question || ''); setFocus(view.retryRequest.focus || 'general');
+          setSelectionText(''); setMaterials({ question: true, selection: true, plan: true, diff: true, test: true });
+          store.write(sessionId, { retryRequest: null });
+        } else setQuestion(current => current || String(draft || ''));
+        setSelectionText(current => initialSelection || current || '');
+        setError(''); inputRef.current?.focus();
+      }, [consultOpen]);
       useEffect(() => {
-        setPreview(null);
-        setShowText(false);
-      }, [question, focus, sessionId, view.settings]);
-
-      async function doPreview() {
-        setBusy(true);
-        setError(null);
+        if (!consultOpen) return;
+        (preview ? previewRef.current : inputRef.current)?.focus({ preventScroll: true });
+        if (dockRef.current) dockRef.current.scrollTop = 0;
+      }, [Boolean(preview), consultOpen]);
+      const request = () => ({ question: question.trim(), focus, materials,
+        selection: selectionText.trim() ? { text: selectionText.trim() } : null });
+      async function prepare() {
+        if (lock.current || !question.trim()) return;
+        lock.current = true; setBusy(true); setError('');
+        const version = revision.current;
         try {
-          const value = await rpcCall('materials.preview', {
-            sessionId,
-            request: { question: question.trim(), focus },
-          });
-          setPreview(value);
-          setShowText(Boolean(value && value.ok));
-        } catch (err) {
-          setError(String(err && err.message ? err.message : err));
-        } finally {
-          setBusy(false);
-        }
+          const value = await rpcCall('materials.preview', { sessionId, request: request() });
+          if (version !== revision.current) return;
+          if (value?.ok) setPreview(value);
+          else setError(value?.reason || t('loadFailed'));
+        } catch (err) { if (version === revision.current) setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
       }
-
-      async function doStart() {
-        if (!preview?.ok) {
-          await doPreview();
-          return;
-        }
-        setBusy(true);
-        setError(null);
+      async function start() {
+        if (lock.current || !preview?.ok || !preview.target?.provider || !preview.target?.model) return;
+        lock.current = true; setBusy(true); setError('');
         try {
-          const value = await rpcCall('consult.start', {
-            sessionId,
-            request: { question: question.trim(), focus, expectedDigest: preview.digest, expectedTarget: preview.target },
-          });
-          if (value && value.accepted) {
-            // Open the card: the person just asked for this, so the result must
-            // be where they are looking when it settles, not one click away.
-            setDockView(sessionId, 'card');
-            closeConsult();
-            setQuestion('');
-            setPreview(null);
-            setShowText(false);
-            // The card lives in a different slot with its own store; refresh it
-            // here so the result is visible the moment this strip closes instead
-            // of waiting for the next mount.
+          const value = await rpcCall('consult.start', { sessionId, request: { ...request(), expectedDigest: preview.digest, expectedTarget: preview.target } });
+          if (value?.record) store.write(sessionId, { selectedId: value.record.id });
+          if (value?.accepted) {
+            setDockView(sessionId, 'card'); closeConsult(); setQuestion(''); setSelectionText(''); setPreview(null); setFocus('general');
+            setMaterials({ question: true, selection: true, plan: true, diff: true, test: true });
             if (reload) await reload();
-          } else if (value && value.record && value.record.error) {
-            setError(value.record.error.message || t('stateRefused'));
-            setPreview(null);
-            setShowText(false);
+          } else {
+            setError(value?.record?.error?.message || t('stateRefused')); setPreview(null);
           }
-        } catch (err) {
-          setError(String(err && err.message ? err.message : err));
-        } finally {
-          setBusy(false);
-        }
+        } catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
       }
-
       if (!consultOpen) return null;
-
-      const resolvedLabel = preview?.target?.provider && preview?.target?.model
-        ? `${preview.target.provider} / ${preview.target.model}`
-        : view.resolved && view.resolved.label ? view.resolved.label : t('modelMissing');
-      const scope = view.settings ? view.settings.materials : null;
-
-      return h(
-        'div',
-        { className: 'dsha-dock' },
-        h(
-          'div',
-          { className: 'dsha-dock-head' },
-          h('span', { className: 'dsha-dock-title' }, t('consultTitle')),
-          h(
-            'button',
-            { className: 'dsha-btn tiny ghost', type: 'button', onClick: closeConsult, disabled: busy },
-            t('cancel'),
-          ),
-        ),
-        h(
-          'div',
-          { className: 'dsha-block', style: { gap: '4px' } },
-          h('span', { className: 'dsha-label' }, t('consultQuestion')),
-          h('textarea', {
-            className: 'dsha-textarea',
-            value: question,
-            placeholder: t('consultQuestionPlaceholder'),
-            onChange: (event) => setQuestion(event.target.value),
-            disabled: busy,
-          }),
-        ),
-        h(
-          'div',
-          { className: 'dsha-chipline' },
-          h('span', null, `${t('consultModel')}: `),
-          h('strong', { style: { color: 'var(--dsw-alias-label-primary)' } }, resolvedLabel),
-        ),
-        h(
-          'div',
-          { className: 'dsha-chipline' },
-          h('span', null, `${t('consultMaterials')}: `),
-          scope
-            ? Object.keys(kindLabels)
-                .filter((kind) => scope[kind])
-                .map((kind) => h('span', { key: kind, className: 'dsha-chip' }, kindLabels[kind]))
-            : null,
-        ),
-        h(
-          'div',
-          { className: 'dsha-row' },
-          h(
-            'button',
-            { className: 'dsha-btn tiny ghost', type: 'button', onClick: () => showText ? setShowText(false) : preview?.ok ? setShowText(true) : doPreview(), disabled: busy || question.trim() === '' },
-            showText ? t('hideMaterials') : t('viewMaterials'),
-          ),
-          h('span', { className: 'dsha-spacer' }),
-          h(
-            'button',
-            {
-              className: 'dsha-btn primary',
-              type: 'button',
-              onClick: doStart,
-              disabled: busy || question.trim() === '',
-            },
-            busy ? t('starting') : preview?.ok ? t('startConsult') : t('viewMaterials'),
-          ),
-        ),
-        preview && !preview.ok
-          ? h('p', { className: 'dsha-note err' }, `${preview.reason}`)
-          : null,
-        preview && preview.ok
-          ? h(
-              'div',
-              { className: 'dsha-block', style: { gap: '6px' } },
-              h(
-                'span',
-                { className: 'dsha-note' },
-                `${preview.chars} ${t('chars')} · ${preview.summary}`,
-              ),
-              (preview.materials || []).map((material) =>
-                h(
-                  'span',
-                  { key: material.kind, className: 'dsha-note' },
-                  `${kindLabels[material.kind] || material.kind}: ${material.absent ? t('absentMaterial') : `${material.chars} ${t('chars')}${material.truncated ? ` ${t('truncatedMaterial')}` : ''}${material.fromEarlierTurn ? ` ${t('earlierTurnMaterial')}` : ''}`}`,
-                ),
-              ),
-              showText && preview.text ? h('pre', { className: 'dsha-pre' }, preview.text) : null,
-            )
-          : null,
-        error ? h('p', { className: 'dsha-note err' }, error) : null,
-      );
+      const scope = view.settings?.materials || {};
+      const ready = Boolean(preview?.target?.provider && preview?.target?.model);
+      return h('section', { className: 'dsha-dock', ref: dockRef, 'aria-label': t('consultTitle'),
+        onKeyDown: event => { if (event.key === 'Escape' && !busy) { event.stopPropagation(); closeConsult(); } } },
+        h('header', { className: 'dsha-dock-head' }, h('div', null,
+          h('span', { className: 'dsha-eyebrow' }, t('secondOpinion')),
+          h('h2', null, t('consultTitle'))),
+          h('button', { className: 'dsha-icon-btn', type: 'button', onClick: closeConsult, disabled: busy, 'aria-label': t('close') }, '×')),
+        h('ol', { className: 'dsha-progress', 'aria-label': t('consultSteps') },
+          h('li', { 'aria-current': !preview ? 'step' : undefined }, h('span', null, '1'), t('writeQuestion')),
+          h('li', { 'aria-current': preview ? 'step' : undefined }, h('span', null, '2'), t('reviewAndSend'))),
+        !preview ? h('fieldset', { className: 'dsha-fields', disabled: busy },
+          h('div', { className: 'dsha-tabs', role: 'group', 'aria-label': t('focusLabel') },
+            ['general', 'plan', 'diff', 'test'].map(value => h('button', { key: value, type: 'button', 'aria-pressed': focus === value,
+              onClick: () => setFocus(value) }, t(`focus_${value}`)))),
+          h('label', { className: 'dsha-field' }, t('consultQuestion'),
+            h('textarea', { ref: inputRef, 'aria-label': t('consultQuestion'), className: 'dsha-textarea', value: question, rows: 3, maxLength: 4000,
+              placeholder: t(`placeholder_${focus}`), onChange: event => setQuestion(event.target.value) })),
+          h('div', { className: 'dsha-scope-head' }, h('strong', null, t('thisTimeMaterials')), h('span', { className: 'dsha-note' }, t('thisTimeOnly'))),
+          h('div', { className: 'dsha-scope' }, ['question', 'selection', 'plan', 'diff', 'test'].map(kind => h('label', {
+            className: 'dsha-scope-option', key: kind, title: !scope[kind] && kind !== 'question' ? t('disabledInSettings') : '',
+          }, h('input', { type: 'checkbox', checked: kind === 'question' || Boolean(scope[kind] && materials[kind]),
+            disabled: kind === 'question' || !scope[kind], onChange: event => setMaterials(prev => ({ ...prev, [kind]: event.target.checked })) }), materialName(t, kind)))),
+          scope.selection && materials.selection ? h('label', { className: 'dsha-field' }, t('pasteSelection'),
+            h('textarea', { className: 'dsha-textarea compact', 'aria-label': t('pasteSelection'), value: selectionText, maxLength: 6000, rows: 2,
+              placeholder: t('pasteHint'), onChange: event => setSelectionText(event.target.value) })) : null) : null,
+        preview ? h('div', { className: 'dsha-preview', 'data-testid': 'preview', ref: previewRef, tabIndex: -1, role: 'region', 'aria-label': t('exactMaterial') },
+          h('strong', { className: 'dsha-preview-question' }, question),
+          !ready ? h('p', { className: 'dsha-callout', role: 'status' }, t('modelMissing')) : null,
+          h('div', { className: 'dsha-model-summary' }, h('span', { className: `dsha-dot ${ready ? 'ok' : 'warn'}` }),
+            h('strong', null, ready ? `${preview.target.provider} / ${preview.target.model}` : t('statusNeedsModel')),
+            h('span', { className: 'dsha-note' }, `${preview.chars} ${t('chars')}`)),
+          h('div', { className: 'dsha-material-status' }, (preview.materials || []).map(m => h('p', { key: m.kind, className: `dsha-note ${m.absent || m.truncated || m.fromEarlierTurn ? 'warn' : ''}` },
+            `${materialName(t, m.kind)} · ${m.absent ? t('absentMaterial') : `${m.chars} ${t('chars')}`}${m.truncated ? ` ${t('truncatedMaterial')}` : ''}${m.fromEarlierTurn ? ` ${t('earlierTurnMaterial')}` : ''}`))),
+          h('details', { open: true, className: 'dsha-details' }, h('summary', null, t('exactMaterial')), h('pre', { className: 'dsha-pre' }, preview.text)),
+          h('p', { className: 'dsha-note' }, view.settings?.delivery === 'return' ? t('deliveryReturnHint') : t('deliveryShowHint'))) : null,
+        error ? h('p', { role: 'alert', className: 'dsha-callout err' }, error) : null,
+        h('footer', { className: 'dsha-dock-footer' }, h('span', { className: 'dsha-note', role: 'status' }, busy ? t('starting') : preview ? t('sendCostHint') : t('previewFreeHint')),
+          h('div', { className: 'dsha-row' }, preview ? h('button', { type: 'button', className: 'dsha-btn ghost', disabled: busy, onClick: () => setPreview(null) }, t('editRequest')) : null,
+            h('button', { type: 'button', className: 'dsha-btn primary', disabled: busy || !question.trim() || (Boolean(preview) && !ready),
+              onClick: preview ? start : prepare }, busy ? t('working') : preview ? t('confirmAndSend') : t('previewNext')))));
     }
-
-    // ----------------------------------------------------------- consultation card
 
     function AdviceBody(props) {
       const { t, record, expanded, onToggle } = props;
       const text = String(record.advice || '');
       if (text === '') return null;
       const head = expanded ? text : previewOf(text, 4, 380);
-      const cut = !expanded && text.trim() !== head.trim();
+      const canCollapse = text.length > 380 || text.split('\n').filter(line => line.trim()).length > 4;
       return h(
         'div',
         { className: 'dsha-block', style: { gap: '4px' } },
         h('p', { className: 'dsha-advice' }, head),
-        cut || expanded
+        canCollapse
           ? h(
               'button',
               { className: 'dsha-btn tiny ghost', type: 'button', onClick: onToggle },
@@ -1628,232 +1393,109 @@ window.__ModuleLoader__.load({
       );
     }
 
+    const reviewDrafts = new Map();
     function ConsultCardBody(props) {
-      const { t, record, rpcCall, sessionId, noteText, reload } = props;
-      const [expanded, setExpanded] = useState(false);
+      const { t, record, rpcCall, sessionId, reload, onRetry } = props;
+      const [expanded, setExpanded] = useState(true);
       const [busy, setBusy] = useState(false);
-      const [localNote, setLocalNote] = useState(null);
+      const [message, setMessage] = useState('');
+      const [error, setError] = useState('');
+      const draftKey = JSON.stringify([sessionId, record.id]);
+      const cached = reviewDrafts.get(draftKey);
+      const reviewFormRef = useRef(null);
+      const [editing, setEditing] = useState(Boolean(cached));
+      const [verdict, setVerdict] = useState(cached?.verdict ?? record.verification ?? 'pending');
+      const [disposition, setDisposition] = useState(cached?.disposition ?? record.disposition ?? 'none');
+      const [note, setNote] = useState(cached?.note ?? record.verdictNote ?? '');
+      useEffect(() => {
+        if (editing) reviewDrafts.set(draftKey, { verdict, disposition, note });
+      }, [draftKey, editing, verdict, disposition, note]);
+      const lock = useRef(false);
+      useEffect(() => {
+        if (editing) {
+          reviewFormRef.current?.scrollIntoView({ block: 'nearest' });
+          reviewFormRef.current?.querySelector('select')?.focus({ preventScroll: true });
+        }
+      }, [editing]);
       const active = isPending(record);
       const now = useNow(active);
-
-      // Every write below changes the record on the host. Re-reading it is what
-      // makes "核验状态: 尚未确认" turn into the verdict the user just recorded;
-      // patching local state instead would let the card claim a state the stored
-      // record does not have.
-      async function annotate(patch) {
-        setBusy(true);
-        try {
-          const value = await rpcCall('consult.annotate', {
-            sessionId,
-            consultationId: record.id,
-            patch,
-          });
-          if (value && value.record) setLocalNote(null);
-          if (reload) await reload();
-        } catch (err) {
-          setLocalNote(String(err && err.message ? err.message : err));
-        } finally {
-          setBusy(false);
-        }
+      async function perform(action) {
+        if (lock.current) return;
+        lock.current = true; setBusy(true); setError(''); setMessage('');
+        try { await action(); if (reload) await reload(); }
+        catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
       }
-
-      async function deliver() {
-        setBusy(true);
-        setLocalNote(null);
-        try {
-          const value = await rpcCall('consult.deliver', {
-            sessionId,
-            consultationId: record.id,
-          });
-          if (!value.ok) setLocalNote(value.message || value.reason);
-          if (reload) await reload();
-        } catch (err) {
-          setLocalNote(String(err && err.message ? err.message : err));
-        } finally {
-          setBusy(false);
-        }
+      function saveVerdict(event) {
+        event.preventDefault();
+        if (verdict !== 'pending' && !note.trim()) { setError(t('verifyNeedsNote')); return; }
+        perform(async () => {
+          const value = await rpcCall('consult.annotate', { sessionId, consultationId: record.id,
+            patch: { verification: verdict, disposition, verdictNote: note.trim() } });
+          if (!value?.record) throw new Error(t('recordMissing'));
+          reviewDrafts.delete(draftKey); setEditing(false); setMessage(t('verdictSaved'));
+        });
       }
-
-      async function cancelRun() {
-        setBusy(true);
-        try {
-          await rpcCall('consult.cancel', { sessionId, consultationId: record.id });
-        } catch (err) {
-          setLocalNote(String(err && err.message ? err.message : err));
-        } finally {
-          setBusy(false);
-          if (reload) await reload();
-        }
-      }
-
+      const button = (label, onClick, cls = '', disabled = false) => h('button', { type: 'button', className: `dsha-btn ${cls}`, onClick, disabled: busy || disabled }, label);
       const caveat = stateCaveat(t, record);
-      const waited = active && record.createdAt ? Math.round((now - new Date(record.createdAt).getTime()) / 1000) : 0;
-      const staleness = record.staleness || null;
-
-      return h(
-        'div',
-        { className: 'dsha-consult' },
-        h(
-          'div',
-          { className: 'dsha-consult-head' },
-          h(
-            'div',
-            { className: 'dsha-factline' },
-            h(
-              'span',
-              { className: 'dsha-status' },
-              h('span', { className: `dsha-dot ${stateTone(record.state)}` }),
-              stateLabel(t, record.state),
-            ),
-            h('span', { className: 'dsha-when' }, fmtTime(record.createdAt)),
-            active ? h('span', { className: 'dsha-when' }, t('waited').replace('%s', String(waited))) : null,
-          ),
-          record.target && (record.target.model || record.target.provider)
-            ? h(
-                'span',
-                { className: 'dsha-prov' },
-                `${record.target.provider || ''}${record.target.provider && record.target.model ? ' / ' : ''}${record.target.model || ''}`,
-              )
-            : null,
-        ),
-
-        staleness && staleness.verdict === 'changed'
-          ? h(
-              'div',
-              { className: 'dsha-block', style: { gap: '2px' } },
-              h('span', { className: 'dsha-note warn' }, t('staleNote')),
-              (staleness.changedPaths || []).length > 0
-                ? h(
-                    'span',
-                    { className: 'dsha-note' },
-                    `${t('stalePaths')} ${(staleness.changedPaths || []).slice(0, 6).join(', ')}`,
-                  )
-                : null,
-            )
-          : null,
-
-        // The question is context, not content: it is quoted so the opinion below
-        // is read as an answer to something specific.
-        record.question ? h('p', { className: 'dsha-quote' }, record.question) : null,
-
-        h(AdviceBody, {
-          t,
-          record,
-          expanded,
-          onToggle: () => setExpanded((value) => !value),
-        }),
-
-        caveat ? h('p', { className: `dsha-note ${record.state === 'failed' || record.state === 'refused' ? 'err' : 'warn'}` }, caveat) : null,
-
-        record.error && record.error.message
-          ? h('p', { className: 'dsha-note err' }, `${record.error.code || ''} ${record.error.message}`.trim())
-          : null,
-
-        record.reason === 'session-budget-exhausted' || record.reason === 'no-model'
-          ? h('p', { className: 'dsha-note warn' }, String(record.reason))
-          : null,
-
-        record.materials && record.materials.kinds && record.materials.kinds.length > 0
-          ? h(
-              'div',
-              { className: 'dsha-meta' },
-              h('span', null, `${record.materials.chars} ${t('chars')}`),
-              h('span', { className: 'dsha-sep' }, '·'),
-              // Localized names, not the raw kind ids: "question · plan" is the
-              // settings vocabulary, and the card is read by a person.
-              h('span', null, (record.materials.kinds || []).map((kind) => materialName(t, kind)).join(' · ')),
-              record.materials.truncated && record.materials.truncated.length > 0
-                ? h('span', { className: 'dsha-note warn' }, `${t('truncatedMaterial')} ${record.materials.truncated.join(', ')}`)
-                : null,
-              record.materials.fromEarlierTurn && record.materials.fromEarlierTurn.length > 0
-                ? h('span', { className: 'dsha-note warn' }, `${t('earlierTurnMaterial')} ${record.materials.fromEarlierTurn.join(', ')}`)
-                : null,
-            )
-          : null,
-
-        // Three separate facts, shown as a small definition list. They are
-        // separate columns rather than one sentence because each one is answered
-        // by a different button below, and a run-on line makes them look like one
-        // status.
-        h(
-          'dl',
-          { className: 'dsha-facts' },
-          h('dt', null, t('verifyLabel')),
-          h('dd', { 'data-tone': record.verification === 'confirmed' ? 'ok' : record.verification === 'rejected' ? 'err' : '' }, verifyText(t, record.verification)),
-          h('dt', null, t('dispositionLabel')),
-          h('dd', null, dispositionText(t, record.disposition)),
-          h('dt', null, t('deliveryFact')),
-          h('dd', null, record.deliveredToModel ? t('deliveredLabel') : t('notDelivered')),
-        ),
-        record.verdictNote ? h('p', { className: 'dsha-quote' }, record.verdictNote) : null,
-
-        h(
-          'div',
-          { className: 'dsha-row' },
-          active
-            ? h(
-                'button',
-                { className: 'dsha-btn tiny', type: 'button', onClick: cancelRun, disabled: busy },
-                busy ? t('cancelling') : t('cancelConsult'),
-              )
-            : null,
-
-          !active && record.advice && !record.deliveredToModel
-            ? h(
-                'button',
-                { className: 'dsha-btn tiny primary', type: 'button', onClick: deliver, disabled: busy },
-                t('actionVerify'),
-              )
-            : null,
-
-          !active && record.advice
-            ? h(
-                'button',
-                {
-                  className: 'dsha-btn tiny ghost',
-                  type: 'button',
-                  disabled: busy,
-                  title: t('verifyHint'),
-                  onClick: () =>
-                    annotate({
-                      verification: 'confirmed',
-                      verdictNote: noteText || '',
-                      disposition: 'accepted',
-                    }),
-                },
-                t('actionAccept'),
-              )
-            : null,
-
-          !active && record.advice
-            ? h(
-                'button',
-                {
-                  className: 'dsha-btn tiny ghost',
-                  type: 'button',
-                  disabled: busy,
-                  onClick: () => annotate({ verification: 'rejected', verdictNote: noteText || '' }),
-                },
-                t('actionReject'),
-              )
-            : null,
-
-          !active
-            ? h(
-                'button',
-                {
-                  className: 'dsha-btn tiny ghost',
-                  type: 'button',
-                  disabled: busy,
-                  onClick: () => annotate({ disposition: 'deferred' }),
-                },
-                t('actionDefer'),
-              )
-            : null,
-        ),
-
-        localNote ? h('p', { className: 'dsha-note err' }, localNote) : null,
-      );
+      const elapsed = active && record.createdAt ? Math.max(0, Math.floor((now - Date.parse(record.createdAt)) / 1000)) : 0;
+      return h('article', { className: 'dsha-consult' },
+        h('header', { className: 'dsha-consult-head' },
+          h('div', { className: 'dsha-factline' }, h('span', { className: 'dsha-status', role: 'status' },
+            h('span', { className: `dsha-dot ${stateTone(record.state)}` }), stateLabel(t, record.state)),
+            h('time', { className: 'dsha-when', dateTime: record.createdAt || undefined }, fmtDateTime(record.createdAt)),
+            active ? h('span', { className: 'dsha-note' }, t('waited').replace('%s', elapsed)) : null),
+          h('h3', { className: 'dsha-question-title' }, record.question || t('cardTitle')),
+          h('p', { className: 'dsha-prov' }, `${record.target?.provider || '—'} / ${record.target?.model || '—'}`)),
+        record.staleness?.verdict === 'changed' ? h('p', { className: 'dsha-callout warn' }, t('staleNote'),
+          record.staleness.changedPaths?.length ? h('span', { className: 'dsha-note' }, record.staleness.changedPaths.join(' · ')) : null) : null,
+        active ? h('div', { className: 'dsha-running', role: 'status' }, h('span', { className: 'dsha-spinner', 'aria-hidden': true }),
+          h('div', null, h('strong', null, t('waitingTitle')), h('p', { className: 'dsha-note' }, t('waitingHint')))) : null,
+        h(AdviceBody, { t, record, expanded, onToggle: () => setExpanded(value => !value) }),
+        caveat ? h('p', { className: 'dsha-callout' }, caveat) : null,
+        record.error?.message ? h('p', { className: 'dsha-callout err', role: 'alert' }, record.error.message) : null,
+        record.materials?.kinds?.length ? h('details', { className: 'dsha-details dsha-record-materials' },
+          h('summary', null, t('materialUsed'), h('span', { className: 'dsha-note' }, `${record.materials.chars || 0} ${t('chars')}`)),
+          h('p', { className: 'dsha-note' }, record.materials.kinds.map(kind => materialName(t, kind)).join(' · ')),
+          record.materials.truncated?.length ? h('p', { className: 'dsha-note warn' }, t('truncatedMaterial'), ' ', record.materials.truncated.map(k => materialName(t, k)).join(' · ')) : null,
+          record.materials.fromEarlierTurn?.length ? h('p', { className: 'dsha-note warn' }, t('earlierTurnMaterial'), ' ', record.materials.fromEarlierTurn.map(k => materialName(t, k)).join(' · ')) : null) : null,
+        !active && record.advice ? h('div', { className: 'dsha-outcome-grid' },
+          [[t('verifyLabel'), verifyText(t, record.verification)], [t('dispositionLabel'), dispositionText(t, record.disposition)], [t('deliveryFact'), record.deliveredToModel ? t('deliveredLabel') : t('notDelivered')]].map(([label, value]) =>
+            h('div', { key: label }, h('span', { className: 'dsha-note' }, label), h('strong', null, value)))) : null,
+        record.verdictNote && !editing ? h('blockquote', { className: 'dsha-quote' }, record.verdictNote) : null,
+        h('div', { className: 'dsha-row dsha-card-actions' },
+          active ? button(t('cancelConsult'), () => perform(async () => {
+            const value = await rpcCall('consult.cancel', { sessionId, consultationId: record.id });
+            if (!value?.ok) throw new Error(t('noLongerRunning'));
+            setMessage(t('cancelledNote'));
+          })) : null,
+          !active && record.advice ? button(record.deliveredToModel ? t('actionVerifySent') : t('actionVerify'), () => perform(async () => {
+            const value = await rpcCall('consult.deliver', { sessionId, consultationId: record.id });
+            if (!value?.ok) throw new Error(value?.message || value?.reason || t('deliveryFailed'));
+            setMessage(t('deliveredLabel'));
+          }), 'primary', record.deliveredToModel) : null,
+          !active && record.advice ? button(t('recordVerdict'), () => {
+            const kept = reviewDrafts.get(draftKey);
+            setVerdict(kept?.verdict ?? record.verification ?? 'pending');
+            setDisposition(kept?.disposition ?? record.disposition ?? 'none');
+            setNote(kept?.note ?? record.verdictNote ?? '');
+            setEditing(value => !value); setError('');
+          }, 'ghost') : null,
+          !active && onRetry ? button(t('askAgain'), () => onRetry(record), 'ghost') : null,
+          record.advice ? button(t('copyOpinion'), () => perform(async () => { await navigator.clipboard.writeText(record.advice); setMessage(t('copied')); }), 'ghost') : null),
+        editing ? h('form', { className: 'dsha-verdict-form', ref: reviewFormRef, onSubmit: saveVerdict },
+          h('h4', null, t('recordVerdict')), h('p', { className: 'dsha-note' }, t('manualVerdictHint')),
+          h('fieldset', { className: 'dsha-fields', disabled: busy }, h('div', { className: 'dsha-grid two' },
+            h('label', { className: 'dsha-field' }, t('verifyLabel'), h('select', { className: 'dsha-select', 'aria-label': t('verifyLabel'), value: verdict, onChange: event => setVerdict(event.target.value) },
+              ['pending', 'confirmed', 'rejected', 'inconclusive'].map(v => h('option', { key: v, value: v }, verifyText(t, v))))),
+            h('label', { className: 'dsha-field' }, t('dispositionLabel'), h('select', { className: 'dsha-select', 'aria-label': t('dispositionLabel'), value: disposition, onChange: event => setDisposition(event.target.value) },
+              ['none', 'accepted', 'fixed', 'deferred'].map(v => h('option', { key: v, value: v }, dispositionText(t, v)))))),
+            h('label', { className: 'dsha-field' }, t('verdictReason'), h('textarea', { className: 'dsha-textarea', 'aria-label': t('verdictReason'), rows: 3, value: note,
+              required: verdict !== 'pending', maxLength: 4000, placeholder: t('verdictPlaceholder'), onChange: event => setNote(event.target.value) }))),
+          h('div', { className: 'dsha-row' }, h('button', { type: 'submit', className: 'dsha-btn primary', disabled: busy }, t('saveVerdict')),
+            button(t('cancel'), () => { reviewDrafts.delete(draftKey); setEditing(false); }, 'ghost'))) : null,
+        message ? h('p', { className: 'dsha-note ok', role: 'status' }, message) : null,
+        error ? h('p', { className: 'dsha-note err', role: 'alert' }, error) : null);
     }
 
     function verifyText(t, value) {
@@ -1894,200 +1536,102 @@ window.__ModuleLoader__.load({
      * ancestors do not scroll, so a panel can hang there without moving anything.
      */
     function AdvisorPanel(props) {
-      const { t, sessionId, rpcCall, bridge, noteText, records, card } = props;
+      const { t, sessionId, rpcCall, bridge, records, card, onConsult, triggerRef } = props;
       const dockView = useDockView(sessionId);
       const showHistory = dockView === 'history';
-
-      return h(
-        'div',
-        { className: 'dsha-panel' },
-        h(
-          'div',
-          { className: 'dsha-panel-head' },
-          h('span', { className: 'dsha-panel-title' }, showHistory ? t('historyLabel') : t('cardTitle')),
-          h(
-            'div',
-            { className: 'dsha-panel-actions' },
-            h(
-              'button',
-              {
-                className: 'dsha-link',
-                type: 'button',
-                'aria-pressed': showHistory ? 'true' : 'false',
-                onClick: () => setDockView(sessionId, showHistory ? 'card' : 'history'),
-              },
-              showHistory ? t('cardTitle') : `${t('historyOpen')} ${records.length}`,
-            ),
-            h(
-              'button',
-              {
-                className: 'dsha-link',
-                type: 'button',
-                onClick: () => setDockView(sessionId, null),
-              },
-              t('cardCollapse'),
-            ),
-          ),
-        ),
-
-        h(
-          'div',
-          { className: 'dsha-panel-body' },
-          showHistory
-          ? h(
-              'div',
-              { className: 'dsha-list' },
-              records.length === 0
-                ? h('span', { className: 'dsha-note' }, t('historyEmpty'))
-                : records.map((record) => {
-                    // An opinion nobody has judged yet is the whole reason the
-                    // person opened this list; mark the row so the queue can be
-                    // worked top to bottom instead of guessed at.
-                    const owed = Boolean(
-                      record.advice &&
-                        !isPending(record) &&
-                        record.verification !== 'confirmed' &&
-                        record.verification !== 'rejected',
-                    );
-                    return h(
-                      'button',
-                      {
-                        key: record.id,
-                        type: 'button',
-                        className: 'dsha-histrow',
-                        'data-owed': owed ? 'true' : 'false',
-                        title: String(record.question || ''),
-                        onClick: () => {
-                          store.write(sessionId, {
-                            records: [record, ...records.filter((entry) => entry.id !== record.id)],
-                          });
-                          setDockView(sessionId, 'card');
-                        },
-                      },
-                      h('span', { className: 'dsha-when' }, fmtTime(record.createdAt)),
-                      h(
-                        'span',
-                        { className: 'dsha-state' },
-                        h('span', { className: `dsha-dot ${stateTone(record.state)}` }),
-                        owed ? h('span', { className: 'dsha-owed' }, t('owedTag')) : null,
-                        h('span', null, stateLabel(t, record.state)),
-                      ),
-                      h('span', { className: 'dsha-ask' }, String(record.question || '')),
-                      h('span', { className: 'dsha-go', 'aria-hidden': 'true' }, '›'),
-                    );
-                  }),
-            )
-          : card
-            ? h(ConsultCardBody, {
-                t,
-                record: card,
-                rpcCall,
-                sessionId,
-                noteText,
-                reload: () => bridge.reloadRecords(sessionId),
-              })
-            : h('span', { className: 'dsha-note' }, t('historyEmpty')),
-        ),
-      );
+      const view = useStore(sessionId);
+      const [filter, setFilter] = useState('all');
+      const [query, setQuery] = useState('');
+      const panelRef = useRef(null);
+      const close = () => { setDockView(sessionId, null); triggerRef.current?.focus(); };
+      useEffect(() => {
+        const before = document.activeElement;
+        panelRef.current?.querySelector('button')?.focus();
+        return () => { if (!document.activeElement || document.activeElement === document.body) before?.focus?.(); };
+      }, []);
+      useEffect(() => {
+        const dismiss = event => {
+          if (!panelRef.current?.contains(event.target) && !triggerRef.current?.contains(event.target)) setDockView(sessionId, null);
+        };
+        const escape = event => { if (event.key === 'Escape' && !event.defaultPrevented) close(); };
+        document.addEventListener('pointerdown', dismiss);
+        document.addEventListener('keydown', escape);
+        return () => { document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', escape); };
+      }, [sessionId]);
+      const filtered = records.filter(record => {
+        const match = filter === 'all' || (filter === 'pending' && needsReview(record)) || (filter === 'running' && isPending(record)) ||
+          (filter === 'issues' && ['failed', 'refused', 'timed_out', 'cancelled'].includes(record.state));
+        return match && `${record.question || ''} ${record.advice || ''} ${record.target?.model || ''}`.toLowerCase().includes(query.toLowerCase());
+      });
+      function retry(record) {
+        store.write(sessionId, { retryRequest: { question: record.question, focus: record.focus } });
+        setDockView(sessionId, null); onConsult?.(sessionId);
+      }
+      return h('section', { className: 'dsha-panel', role: 'dialog', 'aria-label': t('advisorCenter'), ref: panelRef,
+        onKeyDown: event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } } },
+        h('header', { className: 'dsha-panel-head' }, h('div', null, h('span', { className: 'dsha-eyebrow' }, t('sessionOnly')),
+          h('h2', { className: 'dsha-panel-title' }, t('advisorCenter'))),
+          h('div', { className: 'dsha-panel-actions' },
+            h('button', { className: 'dsha-icon-btn', type: 'button', onClick: () => bridge.reloadRecords(sessionId), 'aria-label': t('refresh') }, '↻'),
+            h('button', { className: 'dsha-icon-btn', type: 'button', onClick: close, 'aria-label': t('close') }, '×'))),
+        h('nav', { className: 'dsha-tabs dsha-panel-tabs', 'aria-label': t('advisorViews') },
+          h('button', { type: 'button', 'aria-pressed': !showHistory, onClick: () => setDockView(sessionId, 'card') }, t('cardTitle')),
+          h('button', { type: 'button', 'aria-pressed': showHistory, onClick: () => setDockView(sessionId, 'history') }, `${t('historyOpen')} · ${records.length}`)),
+        h('div', { className: 'dsha-panel-body' },
+          view.error ? h('p', { className: 'dsha-callout err', role: 'alert' }, view.error) : null,
+          showHistory ? h(React.Fragment, null,
+            h('label', { className: 'dsha-search' }, h('span', { className: 'dsha-sr-only' }, t('searchHistory')),
+              h('input', { className: 'dsha-input', type: 'search', placeholder: t('searchHistory'), value: query, onChange: event => setQuery(event.target.value) })),
+            h('div', { className: 'dsha-filters', role: 'group', 'aria-label': t('filterHistory') },
+              ['all', 'pending', 'running', 'issues'].map(value => h('button', { type: 'button', key: value, 'aria-pressed': filter === value,
+                onClick: () => setFilter(value) }, t(`filter_${value}`)))),
+            h('div', { className: 'dsha-list' }, filtered.length ? filtered.map(record => h('button', {
+              type: 'button', key: record.id, className: 'dsha-history-item', 'data-owed': needsReview(record),
+              'aria-label': `${record.question || t('cardTitle')} · ${stateLabel(t, record.state)}`,
+              onClick: () => { store.write(sessionId, { selectedId: record.id }); setDockView(sessionId, 'card'); },
+            }, h('div', { className: 'dsha-history-top' }, h('span', { className: `dsha-dot ${stateTone(record.state)}` }),
+              h('strong', null, needsReview(record) ? t('owedTag') : stateLabel(t, record.state)), h('time', { dateTime: record.createdAt || undefined }, fmtDateTime(record.createdAt))),
+              h('span', { className: 'dsha-history-question' }, record.question || t('cardTitle')),
+              h('span', { className: 'dsha-note' }, record.target?.model || '—'))) : h('div', { className: 'dsha-empty' },
+                h('strong', null, records.length ? t('noResults') : t('historyEmpty')), h('p', { className: 'dsha-note' }, records.length ? t('changeFilter') : t('emptyHint')))))
+          : card ? h(ConsultCardBody, { key: card.id, t, record: card, rpcCall, sessionId, reload: () => bridge.reloadRecords(sessionId), onRetry: retry })
+          : h('div', { className: 'dsha-empty' }, h('span', { className: 'dsha-empty-symbol', 'aria-hidden': true }, '◇'),
+            h('strong', null, t('historyEmpty')), h('p', { className: 'dsha-note' }, t('emptyHint')))),
+        h('footer', { className: 'dsha-panel-footer' }, h('span', { className: 'dsha-note' }, t('opinionNotFact')),
+          h('button', { className: 'dsha-btn primary', type: 'button', onClick: () => { setDockView(sessionId, null); onConsult?.(sessionId); } }, t('newConsult'))));
     }
 
-    // -------------------------------------------------------------- header pill
-
-    /**
-     * The header pill. While the card is collapsed this is the only advisor
-     * surface on screen, so it reports the state that actually asks something of
-     * the person — a consultation in flight, or a settled opinion nobody has
-     * verified yet — and clicking it opens that opinion. A pill showing the
-     * configured mode alone reads as a static label and gets ignored.
-     */
     function HeaderStatus(props) {
-      const { t, sessionId, bridge, rpcCall, noteText } = props;
+      const { t, sessionId, bridge, rpcCall, onConsult } = props;
       const view = useStore(sessionId);
       const dockView = useDockView(sessionId);
       const open = dockView !== null;
-
-      useEffect(() => {
-        bridge.load(sessionId);
-      }, [bridge, sessionId]);
-
+      const triggerRef = useRef(null);
+      useEffect(() => { bridge.load(sessionId); }, [bridge, sessionId]);
       const records = view.records || [];
       const running = records.filter(isPending);
-      const pending = running[0] || null;
-      // An opinion that arrived and has not been judged yet. `verification` stays
-      // 'pending' until a person marks it, so this is a real queue, not a guess.
-      const unverified = records.filter(
-        (record) => !isPending(record) && record.advice && record.verification !== 'confirmed' && record.verification !== 'rejected',
-      );
+      const pending = running[0];
+      const unverified = records.filter(needsReview);
       const now = useNow(Boolean(pending));
-
-      // Poll only while something is in flight: the record's own state is the
-      // progress report, and there is nothing to poll for once it has settled.
       useEffect(() => {
-        if (running.length === 0) return undefined;
-        const id = setInterval(() => bridge.reloadRecords(sessionId), 900);
-        return () => clearInterval(id);
-      }, [bridge, sessionId, running.length]);
-
-      const settled = records.filter((record) => !isPending(record));
-      const card = running[0] || settled[0] || null;
-
-      if (view.error && !view.loaded) return null;
-      // Anything at all to show? No records and nothing running means this
-      // session has never consulted, and an empty pill would just add noise.
-      if (!pending && unverified.length === 0 && records.length === 0) return null;
-
+        if (!open && !running.length) return undefined;
+        const timer = setInterval(() => bridge.reloadRecords(sessionId), running.length ? 1000 : 5000);
+        return () => clearInterval(timer);
+      }, [bridge, sessionId, running.length, open]);
+      const card = records.find(record => record.id === view.selectedId) || pending || records[0] || null;
       let tone = 'quiet';
-      let label = '';
-      let detail = null;
-      let title = '';
-
+      let label = t('sectionLabel');
       if (pending) {
-        const waited = pending.createdAt ? Math.max(0, Math.round((now - new Date(pending.createdAt).getTime()) / 1000)) : 0;
-        tone = 'warn';
-        label = t('hdRunning').replace('%s', String(waited));
-        detail = String(pending.question || '').slice(0, 24) || null;
-        title = t('hdExpand');
-      } else if (unverified.length > 0) {
-        tone = 'brand';
-        label = t('hdVerdict').replace('%s', String(unverified.length));
-        detail = null;
-        title = t('hdVerdictHint');
-      } else {
-        const last = records[0];
-        const mode = view.mode || (view.settings && view.settings.mode) || 'manual';
-        label = mode === 'auto' ? t('hdAuto') : t('hdLast').replace('%s', stateLabel(t, last.state));
-        detail = last && last.createdAt ? fmtTime(last.createdAt) : null;
-        title = open ? t('hdCollapse') : t('hdExpand');
-      }
-
-      return h(
-        'div',
-        { className: 'dsha-hdwrap' },
-        h(
-          'button',
-          {
-            type: 'button',
-            className: `dsha-hd ${tone}`,
-            'data-open': open ? 'true' : 'false',
-            'data-tone': tone,
-            title,
-            'aria-label': `${label} — ${title}`,
-            'aria-expanded': open ? 'true' : 'false',
-            // A pill reporting pending verdicts opens that list; otherwise it opens the
-            // single latest opinion.
-            onClick: () => setDockView(sessionId, open ? null : tone === 'brand' ? 'history' : 'card'),
-          },
-          h('span', { className: 'dsha-dot' }),
-          h('span', null, label),
-          detail ? h('span', { className: 'dsha-hd-ago' }, detail) : null,
-        ),
-        open
-          ? h(AdvisorPanel, { t, sessionId, rpcCall, bridge, noteText, records, card })
-          : null,
-      );
+        tone = 'warn'; label = t('hdRunning').replace('%s', Math.max(0, Math.floor((now - Date.parse(pending.createdAt)) / 1000)));
+      } else if (unverified.length) { tone = 'brand'; label = t('hdVerdict').replace('%s', unverified.length); }
+      else if (view.error) { tone = 'err'; label = t('loadFailed'); }
+      return h('div', { className: 'dsha-hdwrap' },
+        h('button', { type: 'button', className: `dsha-hd ${tone}`, ref: triggerRef,
+          'aria-label': label, 'aria-haspopup': 'dialog', 'aria-expanded': open,
+          onClick: () => setDockView(sessionId, open ? null : unverified.length ? 'history' : 'card') },
+          h('span', { className: 'dsha-dot' }), h('span', null, label)),
+        open ? h(AdvisorPanel, { key: sessionId, t, sessionId, rpcCall, bridge, records, card, onConsult, triggerRef }) : null);
     }
-
-    // ------------------------------------------------- model-initiated tool card
 
     function ToolCallCard(props) {
       const { t, phase, block, toolName } = props;
@@ -2101,7 +1645,7 @@ window.__ModuleLoader__.load({
         const truncated = Boolean(value && value.truncated);
         const cancelled = Boolean(value && value.cancelled);
         const timedOut = Boolean(value && value.timedOut);
-        const state = cancelled ? 'cancelled' : timedOut ? 'timed_out' : truncated ? 'truncated' : outcome === 'ok' || advice ? 'returned' : 'failed';
+        const state = cancelled ? 'cancelled' : timedOut ? 'timed_out' : truncated ? 'truncated' : ['refused_no_consent', 'budget_exhausted'].includes(outcome) ? 'refused' : outcome === 'no_advice' ? 'no_advice' : outcome === 'advised' || outcome === 'ok' || (!outcome && advice) ? 'returned' : 'failed';
         return h(
           'div',
           { className: 'dsha-consult' },
@@ -2183,11 +1727,12 @@ window.__ModuleLoader__.load({
         // The composer entry and the confirmation strip need to agree on whether
         // the strip is open, and they are separate slot cells; a context-level
         // signal keeps that decision in one place without a global.
-        const openState = { bySession: new Map(), listeners: new Set() };
+        const openState = { bySession: new Map(), selections: new Map(), listeners: new Set() };
         function isOpenFor(sessionId) {
           return Boolean(openState.bySession.get(sessionId));
         }
-        function setOpenFor(sessionId, value) {
+        function setOpenFor(sessionId, value, selection = '') {
+          if (value) { openState.selections.set(sessionId, selection); setDockView(sessionId, null); }
           if (value) openState.bySession.set(sessionId, true);
           else openState.bySession.delete(sessionId);
           for (const fn of Array.from(openState.listeners)) {
@@ -2225,6 +1770,7 @@ window.__ModuleLoader__.load({
         }
 
         function ConsultEntryBound(props) {
+          const selectionRef = useRef('');
           const open = useOpen(props.sessionId);
           const enabled = useAdvisorEnabled(props.sessionId);
           if (!enabled) return null;
@@ -2232,36 +1778,43 @@ window.__ModuleLoader__.load({
             ...props,
             t,
             consultOpen: open,
-            openConsult: (sessionId) => setOpenFor(sessionId, true),
+            selectionRef,
+            openConsult: (sessionId, selection) => setOpenFor(sessionId, !open, selection),
           });
         }
 
         function ConsultDockBound(props) {
           const open = useOpen(props.sessionId);
           const enabled = useAdvisorEnabled(props.sessionId);
+          const draft = typeof props.useInput === 'function' ? props.useInput(state => state.draft) : props.draft;
           if (!enabled) return null;
           return h(ConsultDock, {
             ...props,
+            key: props.sessionId,
+            draft,
+            initialSelection: openState.selections.get(props.sessionId) || '',
             t,
             rpcCall: bridge.rpcCall,
             reload: () => bridge.reloadRecords(props.sessionId),
             consultOpen: open,
-            closeConsult: () => setOpenFor(props.sessionId, false),
+            closeConsult: () => {
+              setOpenFor(props.sessionId, false);
+              document.querySelectorAll('[data-advisor-entry]').forEach(el => {
+                if (el.getAttribute('data-advisor-entry') === props.sessionId) el.focus();
+              });
+            },
           });
         }
 
         function HeaderStatusBound(props) {
           const enabled = useAdvisorEnabled(props.sessionId);
-          // The verdict reason usually lives in the composer draft, so read it here
-          // too; the panel's "the model disagreed" needs a reason without a modal.
-          const draft = typeof props.useInput === 'function' ? props.useInput((state) => state.draft) : '';
           if (!enabled) return null;
           return h(HeaderStatus, {
             ...props,
             t,
             bridge,
             rpcCall: bridge.rpcCall,
-            noteText: String(draft || ''),
+            onConsult: (sessionId) => setOpenFor(sessionId, true),
           });
         }
 
@@ -2269,18 +1822,13 @@ window.__ModuleLoader__.load({
           return h(ToolCallCard, { ...props, t });
         }
 
+        const getService = (name) => { try { return ctx.get(name); } catch { return null; } };
         function SettingsBound(props) {
           return h(SettingsSection, {
             ...props,
             t,
             rpcCall: bridge.rpcCall,
-            getService: (name) => {
-              try {
-                return ctx.get(name);
-              } catch {
-                return null;
-              }
-            },
+            getService,
           });
         }
 
