@@ -18,12 +18,13 @@ import { execFor, makeFakeLlm } from './helpers.mjs'
 
 const CONFIG = { provider: 'p', model: 'm', outputDir: null }
 
-function advisorWith(settings) {
+function advisorWith(settings, options = {}) {
   const llm = makeFakeLlm()
   const advisor = createAdvisor({
     llm,
     config: CONFIG,
     readSettings: () => settings,
+    ...options,
   })
   return { llm, advisor }
 }
@@ -52,8 +53,12 @@ test('manual mode refuses a model-initiated call, because a tool call is not a p
 })
 
 test('confirm mode lets the call through, because the consent seam is exactly that confirmation', async () => {
-  const { llm, advisor } = advisorWith({ enabled: true, mode: 'confirm' })
-  const value = await advisor.tool.execute({ question: 'Is this rename risky?', focus: 'plan' }, execFor('c-confirm'))
+  let asks = 0
+  const { llm, advisor } = advisorWith({ enabled: true, mode: 'confirm' }, {
+    getUserQuestions: () => ({ askTimed: async () => { asks++; return { answers: [{ selected: ['Allow once'] }] } } }),
+  })
+  const value = await advisor.tool.execute({ question: 'Is this rename risky?', focus: 'plan' }, execFor('c-confirm', null, {}))
+  assert.equal(asks, 1, 'a provider call must follow actual consent')
 
   assert.equal(llm.state.calls, 1, 'confirm mode is a prompt, not a refusal')
   assert.equal(value.outcome, 'advised')
