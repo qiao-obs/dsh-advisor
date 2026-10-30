@@ -11,6 +11,7 @@ import { rpcHandler } from '../../lib/rpc.js'
 import { openHistory } from '../../lib/history.js'
 import { makeFakeLlm } from '../../tests/helpers.mjs'
 import { resolve } from './dependencies.mjs'
+import { createWorkReportTool } from '../../lib/workflow.js'
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const here = dirname(fileURLToPath(import.meta.url))
 export async function startHarness() {
@@ -59,7 +60,7 @@ export async function startHarness() {
     res.statusCode = 404; res.end('Not found')
   })
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
-  return { url: `http://127.0.0.1:${server.address().port}`, host, llm, calls, deliveries,
+  return { url: `http://127.0.0.1:${server.address().port}`, host, llm, calls, deliveries, reportTool: createWorkReportTool({home}),
     close: async () => { host.abortAll(); await new Promise(resolve => server.close(resolve)); rmSync(home, { recursive: true, force: true }) } }
 }
 if (process.argv.includes('--serve')) {

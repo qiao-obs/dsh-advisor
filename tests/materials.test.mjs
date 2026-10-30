@@ -154,7 +154,7 @@ test('materials that cannot be read are absent with a reason, not silently empty
   assert.equal(diff.reason, 'the host does not expose workspace changes')
   const failing = material(result, 'test')
   assert.equal(failing.absent, true)
-  assert.equal(failing.reason, 'this session has no failed tool call to show')
+  assert.equal(failing.reason, 'this session has no failed tool call or recognized test summary to show')
 })
 
 test('a material disabled in settings is not collected even when the client asks', async () => {

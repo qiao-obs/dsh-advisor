@@ -1,7 +1,6 @@
 # DSH Advisor
 
-> Ask a second model one question — when the working session is not sure. One
-> tool. It stays silent until it is called.
+> Bring a second opinion into everyday work: scoped tasks, execution reports, evidence, and human acceptance.
 
 [中文](./README.md) · **English**
 
@@ -37,6 +36,18 @@ It is not an automatic reviewer and not a gate in a pipeline:
   never chose.
 - **"Don't change anything" is a valid answer.** "No new advice" only means this
   round found nothing new — **it does not mean the task was verified.**
+
+## Work loop (development branch)
+
+The conversation workspace now supports **opinion → scoped task → confirmed assignment → execution report → recheck → human acceptance**. This is a development-branch feature, not part of the `v0.2.1` tag.
+
+- Manual consultations can propose up to three actions in the same response. Edit scope, priority and acceptance criteria before creating a task. Existing free-text opinions and direct task creation also work.
+- Preview the exact task package before handing it to the current session's working model. `advisor_work_report` records changes, actual checks and blockers. Delivery is not completion; reported completion only means awaiting review.
+- Recheck with the advisor through the usual material preview and explicit confirmation. Only a human decision with evidence records acceptance.
+- Search and filter tasks, reopen work, use common review-question presets, and export Markdown. Original opinions, reports and human decisions survive clearing consultation history.
+- Tasks persist separately at `<DSH_HOME>/dsh-advisor/work/<SHA-256-of-session-ID>.json`. Ambiguous deliveries are never automatically retried.
+
+Organizing tasks does not call a model. Dispatch can incur normal host model/tool costs; advisor rechecks consume separate consultation calls. This is a session-local work loop, not a cross-project scheduler. See [implementation, screenshots and host acceptance requirements](docs/workflow-review.md).
 
 ## Desktop edition (v0.2)
 
@@ -191,7 +202,10 @@ An empty string counts as unset. **A value that does not parse is dropped, not
 written as `undefined`** — an explicit `undefined` wins over the default in
 object spread, and that is how a ceiling silently stops existing.
 
-## The tool
+## Tools
+
+With profile storage available, the plugin registers `advisor_consult` and `advisor_work_report`. The report tool accepts a user-dispatched task ID, assignment ID, outcome, summary and evidence, and uses the host's actual execution session. It cannot dispatch work, call the advisor or mark human acceptance. Without profile storage only the original consultation tool is registered.
+
 
 ```jsonc
 {
@@ -264,7 +278,7 @@ so a reading that arrives through it has no evidence attached *by construction*;
 npm test
 ```
 
-Three suites, all offline — no provider, no network, no cost:
+Logic tests are offline — no provider, no network, no cost. Main coverage:
 
 | File | Covers |
 | --- | --- |
@@ -273,14 +287,15 @@ Three suites, all offline — no provider, no network, no cost:
 | `tests/config.test.mjs` | config precedence, manifest and patch self-consistency |
 | `tests/materials.test.mjs` | material collection: current plan vs. an old todo list, over-budget truncation, reproducibility, unreadable means "absent with a reason", settings and explicit opt-out win |
 
-99 tests, all green. **The UI has no automated tests**: v0.2 was accepted by
-clicking through it in the real desktop app, on the grounds that the plugin's
-states come from host events and a fake DOM can only assert against the mock you
-just wrote. The acceptance record is in `docs/acceptance-v0.2.md`.
+| `tests/workflow.test.mjs` | durable tasks, assignment deduplication, timeout/unload, session isolation, reports, human acceptance, revision conflicts, rechecks and action candidates |
+
+**146/146** logic tests and **12/12** Chromium scenarios pass. Browser scenarios run real client components and RPC handlers with a simulated host and fake model. See [workflow validation](docs/workflow-review.md) for reproduction and limitations. The older real-desktop acceptance record in `docs/acceptance-v0.2.md` does not verify this branch's new work loop.
 
 ## Known limitations
 
-- **The tested environment is the DSH desktop app** (profile `desktop`, host
+- The new assignment, reporting tool and recheck workflow still need validation in a real DSH profile.
+
+- **The older release was tested in the DSH desktop app** (profile `desktop`, host
   0.2.1-rc.3). Web CLI and headless share the same client bundle but have not
   been walked through item by item there.
 - **The tool-side `userQuestions` consent branch still has not run on a real

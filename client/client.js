@@ -50,6 +50,92 @@ window.__ModuleLoader__.load({
     // ------------------------------------------------------------------ locale
 
     const ZH = {
+      workExisting: '已打开该意见对应的现有待办，未重复创建。',
+      workLinked: '返回关联待办',
+      workScopeMissing: '该类材料尚未在设置中开放，本次不会自动发送。可先调整材料设置，或在允许的补充片段中提供必要内容。',
+      workTab: "待办",
+      workBadge: "%s 项待办",
+      workHeading: "让意见产生结果",
+      workHint: "明确范围与验收条件，再交给主力处理。执行报告会回到这里，等待验收。",
+      workActive: "待跟进",
+      workAwaiting: "待验收",
+      workVerified: "人工确认通过",
+      workNew: "新建待办",
+      workEdit: "编辑待办",
+      workSave: "保存待办",
+      workSaved: "待办已保存，尚未交付执行。",
+      workBack: "返回待办列表",
+      workTitle: "要完成什么",
+      workAction: "执行范围",
+      workAcceptance: "验收条件",
+      workPriority: "优先级",
+      priority_high: "优先处理",
+      priority_normal: "正常",
+      priority_low: "较低",
+      workFromAdvice: "原始意见会随待办保留。先确认问题、执行范围和验收条件；保存不会自动执行。",
+      workCreateHint: "写清楚期望结果和怎么验证；保存后可预览任务包，再交给主力。",
+      workActionHint: "具体检查或修改哪些内容？哪些内容不在本次范围内？",
+      workAcceptanceHint: "例如：连续点击只发起一次请求；取消后可以重试；相关测试通过。",
+      workExport: "复制工作记录",
+      workExported: "已复制待办、执行回报和验收依据。",
+      workSearch: "搜索待办",
+      workFilters: "筛选待办",
+      workFilter_active: "待跟进",
+      workFilter_review: "待验收",
+      workFilter_closed: "已归档",
+      workFilter_all: "全部",
+      workEmpty: "这里还没有匹配的待办",
+      workEmptyHint: "把有价值的意见转为待办，或直接新建一个具体目标。",
+      workState_ready: "待交付",
+      workState_sending: "交付确认中",
+      workState_assigned: "已交给主力",
+      workState_reported: "待验收",
+      workState_blocked: "遇到阻碍",
+      workState_uncertain: "交付状态待核实",
+      workState_verified: "人工确认通过",
+      workState_deferred: "暂缓处理",
+      workState_rejected: "不采纳",
+      workSource: "查看原始意见",
+      workSourceHint: "原意见保留用于追溯，不因咨询历史清空而丢失。意见仍需核实。",
+      workAssignedHint: "等待主力回报。你可以继续对话；插件会显示回报，不会把消息送达当作任务完成。",
+      workUncertainHint: "未能确认消息是否送达。先检查主对话，确认未在执行后再重新开放，避免重复任务。",
+      workReport: "主力执行回报",
+      workReportHint: "这是主力提供的执行说明，仍需对照验收条件核实。",
+      report_completed: "报告已完成，尚未验收",
+      report_blocked: "报告遇到阻碍",
+      report_not_applicable: "报告问题不适用",
+      workReviewLog: "最近的人工判断",
+      workRechecks: "关联的顾问复查",
+      workRecheckResult: "查看复查",
+      workHistoryRemoved: "这次复查的咨询历史已被清理。",
+      workHandoff: "交给主力执行",
+      workHandoffTitle: "确认本次任务包",
+      workHandoffHint: "确认后将向当前会话主力发送任务，可能启动执行并产生模型费用。仅交付当前这一项。",
+      workConfirmHandoff: "确认交付这一项",
+      workRecheck: "请顾问复查",
+      workRecheckHint: "这是关联待办的复查。先确认当前材料和报告摘录，再发起咨询；复查结论不会自动关闭待办。",
+      workReview: "验收或调整状态",
+      workDecision: "本次判断",
+      workDecision_verify: "确认达到验收条件",
+      workDecision_reopen: "重新开放处理",
+      workDecision_defer: "暂缓，保留原因",
+      workDecision_reject: "不采纳，保留依据",
+      workEvidence: "实际检查依据或处理原因",
+      workSaveDecision: "保存判断",
+      workRepeatAck: "已检查主对话，确认不会与正在执行的任务重复。",
+      workCandidates: "可推进的下一步",
+      workCandidatesHint: "顾问提出的候选行动。选择后可编辑范围与验收条件，不会直接执行。",
+      workConvert: "转为待办",
+      workPresets: "常用工作场景",
+      workPresetsHint: "选择一个场景会替换问题；可继续编辑，再预览材料。",
+      preset_plan: "执行前检查",
+      preset_diff: "改动审查",
+      preset_test: "排查失败",
+      preset_acceptance: "交付前验收",
+      presetQuestion_plan: "请检查当前方案的关键假设、遗漏的验收条件与最容易返工的环节。优先提出最小可执行的验证步骤，每项给出可观察的通过标准；材料不足时明确指出。",
+      presetQuestion_diff: "请检查当前改动是否引入行为回归、边界遗漏或不必要的范围扩大。按影响优先级给出具体位置、依据、最小修复动作与验证方法；不要把未运行的测试当作通过。",
+      presetQuestion_test: "请根据提供的失败输出定位最可能的原因，区分已经证实的事实与假设。给出最短排查顺序、每步预期观察结果，以及修复后必须补充的回归检查。",
+      presetQuestion_acceptance: "请对照当前目标、方案、改动与测试材料进行交付前验收：哪些已被证据支持，哪些仍缺验证，哪些问题应先处理。给出可执行的验收清单，不要仅因为有测试输出就判定全部通过。",
       focus_general: "综合检查",
       focus_plan: "审查方案",
       focus_diff: "检查改动",
@@ -251,7 +337,7 @@ window.__ModuleLoader__.load({
       budgetHelp: "等待时限或每会话次数设为 0 表示不限。清空历史不会重置已用次数。",
       historyManagement: "管理历史记录",
       sessionOnly: "当前会话",
-      clearBudgetHint: "仅清除当前会话已保存的咨询记录，不重置调用次数，也不取消正在进行的请求。",
+      clearBudgetHint: "仅清除当前会话已保存的咨询记录，不重置调用次数，也不取消正在进行的请求；待办及验收记录保留。",
       unsaved: "有未保存的修改",
       settingsSaved: "设置已保存 · 开关与会话授权即时生效",
       saveSettings: "保存修改",
@@ -306,6 +392,92 @@ window.__ModuleLoader__.load({
     };
 
     const EN = {
+      workExisting: 'Opened the existing task for this opinion without creating a duplicate.',
+      workLinked: 'Back to linked task',
+      workScopeMissing: 'This material type is disabled in settings and will not be sent automatically. Adjust the scope or provide an allowed excerpt.',
+      workTab: "Work",
+      workBadge: "%s open tasks",
+      workHeading: "Turn advice into outcomes",
+      workHint: "Define scope and acceptance criteria, then assign the work. Reports return here for review.",
+      workActive: "Open",
+      workAwaiting: "Awaiting review",
+      workVerified: "Human verified",
+      workNew: "New task",
+      workEdit: "Edit task",
+      workSave: "Save task",
+      workSaved: "Task saved. It has not been assigned yet.",
+      workBack: "Back to tasks",
+      workTitle: "Task title",
+      workAction: "Scope of work",
+      workAcceptance: "Acceptance criteria",
+      workPriority: "Priority",
+      priority_high: "High",
+      priority_normal: "Normal",
+      priority_low: "Low",
+      workFromAdvice: "The source opinion is retained. Confirm the scope and checks. Saving does not start execution.",
+      workCreateHint: "Define the outcome and how to check it. Preview the task package before assigning it.",
+      workActionHint: "What should be checked or changed? What is outside this task?",
+      workAcceptanceHint: "For example: repeated clicks send one request, cancellation allows retry, and relevant tests pass.",
+      workExport: "Copy work log",
+      workExported: "Tasks, reports and review evidence copied.",
+      workSearch: "Search tasks",
+      workFilters: "Filter tasks",
+      workFilter_active: "Open",
+      workFilter_review: "Review",
+      workFilter_closed: "Closed",
+      workFilter_all: "All",
+      workEmpty: "No matching tasks",
+      workEmptyHint: "Turn useful advice into a task, or create a concrete goal.",
+      workState_ready: "Ready",
+      workState_sending: "Confirming delivery",
+      workState_assigned: "Assigned",
+      workState_reported: "Awaiting review",
+      workState_blocked: "Blocked",
+      workState_uncertain: "Delivery uncertain",
+      workState_verified: "Human verified",
+      workState_deferred: "Deferred",
+      workState_rejected: "Rejected",
+      workSource: "Source opinion",
+      workSourceHint: "The opinion is retained even if consultation history is cleared. Its claims still require verification.",
+      workAssignedHint: "Waiting for the working model’s report. Continue your conversation; delivery is not completion.",
+      workUncertainHint: "Delivery could not be confirmed. Check the conversation before reopening to avoid duplicate execution.",
+      workReport: "Execution report",
+      workReportHint: "This is the working model’s report. Check it against the acceptance criteria.",
+      report_completed: "Reported complete, not yet verified",
+      report_blocked: "Reported blocked",
+      report_not_applicable: "Reported not applicable",
+      workReviewLog: "Latest human review",
+      workRechecks: "Linked advisor rechecks",
+      workRecheckResult: "View recheck",
+      workHistoryRemoved: "This recheck’s consultation history has been removed.",
+      workHandoff: "Assign to working model",
+      workHandoffTitle: "Review task package",
+      workHandoffHint: "Confirming sends this one task to the current working model. It may start execution and incur costs.",
+      workConfirmHandoff: "Confirm this assignment",
+      workRecheck: "Ask advisor to recheck",
+      workRecheckHint: "This recheck is linked to a task. Review current materials and report excerpts before sending. A recheck does not automatically close the task.",
+      workReview: "Review or change status",
+      workDecision: "Decision",
+      workDecision_verify: "Confirm criteria met",
+      workDecision_reopen: "Reopen",
+      workDecision_defer: "Defer with reason",
+      workDecision_reject: "Reject with evidence",
+      workEvidence: "Actual evidence or reason",
+      workSaveDecision: "Save decision",
+      workRepeatAck: "I checked the conversation and confirmed this will not duplicate ongoing work.",
+      workCandidates: "Suggested next actions",
+      workCandidatesHint: "Suggested actions. Review and edit their scope and checks before execution.",
+      workConvert: "Create task from advice",
+      workPresets: "Common workflows",
+      workPresetsHint: "Choosing a workflow replaces the question. Edit it before previewing materials.",
+      preset_plan: "Before implementation",
+      preset_diff: "Review changes",
+      preset_test: "Diagnose a failure",
+      preset_acceptance: "Before handoff",
+      presetQuestion_plan: "Review the plan’s assumptions, missing acceptance criteria and likely rework. Propose minimal checks with observable pass criteria. Identify missing evidence.",
+      presetQuestion_diff: "Review the changes for regressions, missed edge cases and scope expansion. Prioritize concrete findings with evidence, minimal fixes and checks. Never claim unrun tests passed.",
+      presetQuestion_test: "Use the failure output to identify likely causes, separating facts from hypotheses. Give the shortest diagnostic sequence, expected observations and required regression checks.",
+      presetQuestion_acceptance: "Review the goal, plan, changes and test evidence before handoff. Identify supported criteria, missing checks and blockers. Provide an actionable acceptance checklist; test output alone does not prove everything passed.",
       focus_general: "General",
       focus_plan: "Plan",
       focus_diff: "Changes",
@@ -507,7 +679,7 @@ window.__ModuleLoader__.load({
       budgetHelp: "Set wait limit or session allowance to 0 for no limit. Clearing history does not reset usage.",
       historyManagement: "Manage history",
       sessionOnly: "CURRENT CONVERSATION",
-      clearBudgetHint: "Remove this conversation’s saved consultations. Usage is retained and active requests are not cancelled.",
+      clearBudgetHint: "Remove this conversation’s saved consultations. Usage and work items are retained; active requests are not cancelled.",
       unsaved: "You have unsaved changes",
       settingsSaved: "Settings saved · Switch and session permission apply immediately",
       saveSettings: "Save changes",
@@ -707,6 +879,24 @@ window.__ModuleLoader__.load({
 .dsha-running { display:flex; align-items:center; gap:12px; padding:20px 0; font-size:13px; }
 .dsha-spinner { width:20px; height:20px; border:2px solid var(--ad-border); border-top-color:var(--ad-brand); border-radius:50%; animation:dsha-spin 1s linear infinite; flex:none; }
 .dsha-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+
+.dsha-work-board,.dsha-work-detail,.dsha-work-form,.dsha-work-form .dsha-fields,.dsha-work-review,.dsha-work-approval { display:flex; flex-direction:column; gap:16px; min-width:0; }
+.dsha-work-board h3,.dsha-work-detail h3,.dsha-work-form h3 { margin:0; font-size:18px; line-height:1.5; overflow-wrap:anywhere; }
+.dsha-work-detail h4,.dsha-work-review h4,.dsha-work-approval h4 { margin:0; font-size:14px; }
+.dsha-work-state { font-size:12px; padding:4px 10px; border-radius:20px; background:var(--ad-soft); color:var(--ad-muted); }
+.dsha-work-state.reported,.dsha-work-state.verified { color:var(--ad-brand); }
+.dsha-work-state.blocked,.dsha-work-state.uncertain { color:var(--ad-warn); }
+.dsha-work-section { display:flex; flex-direction:column; gap:8px; font-size:13px; }
+.dsha-work-section p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8; }
+.dsha-work-section.acceptance { padding:14px; border-radius:10px; background:var(--ad-soft); border-left:3px solid var(--ad-brand); }
+.dsha-work-section.report { padding:16px 0; border-block:1px solid var(--ad-border); }
+.dsha-work-review,.dsha-work-approval { padding:16px; border:1px solid var(--ad-border); border-radius:10px; }
+.dsha-action-candidates { display:flex; flex-direction:column; gap:12px; }
+.dsha-candidate { border:1px solid var(--ad-border); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+.dsha-candidate p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.dsha-candidate .dsha-btn { align-self:flex-start; color:var(--ad-brand); }
+.dsha-work-item .dsha-note { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.dsha-work-board .dsha-outcome-grid strong { font-size:22px; }
 @keyframes dsha-spin { to { transform:rotate(360deg); } }
 @media(max-width:600px) {
  .dsha-page { padding:4px 8px 20px; } .dsha-page-head { gap:12px; } .dsha-page h1 { font-size:24px; }
@@ -847,7 +1037,7 @@ window.__ModuleLoader__.load({
     }
     function setDockView(sessionId, value) {
       if (!sessionId) return;
-      const next = value === 'history' ? 'history' : value ? 'card' : null;
+      const next = ['history', 'work'].includes(value) ? value : value ? 'card' : null;
       if (dockViewFor(sessionId) === next) return;
       if (next) dockOpen.bySession.set(sessionId, next);
       else dockOpen.bySession.delete(sessionId);
@@ -911,9 +1101,10 @@ window.__ModuleLoader__.load({
       async function readSession(sessionId) {
         if (!sessionId) return null;
         try {
-          const [settingsResult, listResult] = await Promise.all([
+          const [settingsResult, listResult, workResult] = await Promise.all([
             rpcCall('settings.get', { sessionId }),
             rpcCall('consult.list', { sessionId }),
+            rpcCall('work.list', { sessionId }),
           ]);
           store.write(sessionId, {
             settings: settingsResult.settings,
@@ -925,6 +1116,7 @@ window.__ModuleLoader__.load({
             providers: settingsResult.providers,
             models: settingsResult.models,
             historyLimit: settingsResult.historyLimit,
+            workItems: workResult.items, workCounts: workResult.counts,
             records: (listResult && listResult.records) || [],
             running: (listResult && listResult.running) || 0,
             error: null,
@@ -944,9 +1136,10 @@ window.__ModuleLoader__.load({
       async function reloadRecords(sessionId) {
         if (!sessionId) return;
         try {
-          const listResult = await rpcCall('consult.list', { sessionId });
+          const [listResult, workResult] = await Promise.all([rpcCall('consult.list', { sessionId }), rpcCall('work.list', { sessionId })]);
           store.write(sessionId, {
             error: null,
+            workItems: workResult.items, workCounts: workResult.counts,
             records: (listResult && listResult.records) || [],
             running: (listResult && listResult.running) || 0,
           });
@@ -1265,12 +1458,13 @@ window.__ModuleLoader__.load({
       const keptDraft = consultDrafts.get(sessionId);
       const [question, setQuestion] = useState(keptDraft?.question || '');
       const [focus, setFocus] = useState(keptDraft?.focus || 'general');
+      const [workLink, setWorkLink] = useState(keptDraft?.workLink || null);
       const [selectionText, setSelectionText] = useState(keptDraft?.selectionText || '');
       const [materials, setMaterials] = useState(keptDraft?.materials || { question: true, selection: true, plan: true, diff: true, test: true });
       useEffect(() => {
-        if (question || selectionText) consultDrafts.set(sessionId, { question, focus, selectionText, materials });
+        if (question || selectionText) consultDrafts.set(sessionId, { question, focus, selectionText, materials, workLink });
         else consultDrafts.delete(sessionId);
-      }, [sessionId, question, focus, selectionText, materials]);
+      }, [sessionId, question, focus, selectionText, materials, workLink]);
       const [preview, setPreview] = useState(null);
       const [busy, setBusy] = useState(false);
       const [error, setError] = useState('');
@@ -1280,7 +1474,7 @@ window.__ModuleLoader__.load({
       const lock = useRef(false);
       const revision = useRef(0);
       const settingsKey = JSON.stringify(view.settings || {});
-      const requestKey = JSON.stringify({ question, focus, selectionText, materials, settingsKey });
+      const requestKey = JSON.stringify({ question, focus, selectionText, materials, settingsKey, workLink });
       useEffect(() => {
         revision.current += 1; setPreview(null);
       }, [requestKey, sessionId]);
@@ -1288,7 +1482,8 @@ window.__ModuleLoader__.load({
         if (!consultOpen) return;
         if (view.retryRequest) {
           setQuestion(view.retryRequest.question || ''); setFocus(view.retryRequest.focus || 'general');
-          setSelectionText(''); setMaterials({ question: true, selection: true, plan: true, diff: true, test: true });
+          setWorkLink(view.retryRequest.workItemId ? {workItemId:view.retryRequest.workItemId,workRevision:view.retryRequest.workRevision} : null);
+          setSelectionText(view.retryRequest.selectionText || ''); setMaterials({ question: true, selection: true, plan: true, diff: true, test: true });
           store.write(sessionId, { retryRequest: null });
         } else setQuestion(current => current || String(draft || ''));
         setSelectionText(current => initialSelection || current || '');
@@ -1299,7 +1494,7 @@ window.__ModuleLoader__.load({
         (preview ? previewRef.current : inputRef.current)?.focus({ preventScroll: true });
         if (dockRef.current) dockRef.current.scrollTop = 0;
       }, [Boolean(preview), consultOpen]);
-      const request = () => ({ question: question.trim(), focus, materials,
+      const request = () => ({ question: question.trim(), focus, materials, ...workLink,
         selection: selectionText.trim() ? { text: selectionText.trim() } : null });
       async function prepare() {
         if (lock.current || !question.trim()) return;
@@ -1320,7 +1515,7 @@ window.__ModuleLoader__.load({
           const value = await rpcCall('consult.start', { sessionId, request: { ...request(), expectedDigest: preview.digest, expectedTarget: preview.target } });
           if (value?.record) store.write(sessionId, { selectedId: value.record.id });
           if (value?.accepted) {
-            setDockView(sessionId, 'card'); closeConsult(); setQuestion(''); setSelectionText(''); setPreview(null); setFocus('general');
+            setDockView(sessionId, 'card'); closeConsult(); setQuestion(''); setSelectionText(''); setPreview(null); setFocus('general'); setWorkLink(null);
             setMaterials({ question: true, selection: true, plan: true, diff: true, test: true });
             if (reload) await reload();
           } else {
@@ -1341,10 +1536,15 @@ window.__ModuleLoader__.load({
         h('ol', { className: 'dsha-progress', 'aria-label': t('consultSteps') },
           h('li', { 'aria-current': !preview ? 'step' : undefined }, h('span', null, '1'), t('writeQuestion')),
           h('li', { 'aria-current': preview ? 'step' : undefined }, h('span', null, '2'), t('reviewAndSend'))),
+        workLink ? h('p', {className:'dsha-callout'}, t('workRecheckHint')) : null,
         !preview ? h('fieldset', { className: 'dsha-fields', disabled: busy },
+          !workLink ? h('details', {className:'dsha-details'}, h('summary',null,t('workPresets')),
+            h('p',{className:'dsha-note'},t('workPresetsHint')),
+            h('div',{className:'dsha-row'}, ['plan','diff','test','acceptance'].map(kind => h('button', {key:kind,type:'button',className:'dsha-btn',onClick:()=>{setQuestion(t(`presetQuestion_${kind}`));setFocus(kind==='acceptance'?'general':kind);}}, t(`preset_${kind}`))))) : null,
           h('div', { className: 'dsha-tabs', role: 'group', 'aria-label': t('focusLabel') },
             ['general', 'plan', 'diff', 'test'].map(value => h('button', { key: value, type: 'button', 'aria-pressed': focus === value,
               onClick: () => setFocus(value) }, t(`focus_${value}`)))),
+          ['plan','diff','test'].includes(focus) && !scope[focus] ? h('p',{className:'dsha-callout'},t('workScopeMissing')) : null,
           h('label', { className: 'dsha-field' }, t('consultQuestion'),
             h('textarea', { ref: inputRef, 'aria-label': t('consultQuestion'), className: 'dsha-textarea', value: question, rows: 3, maxLength: 4000,
               placeholder: t(`placeholder_${focus}`), onChange: event => setQuestion(event.target.value) })),
@@ -1375,7 +1575,7 @@ window.__ModuleLoader__.load({
 
     function AdviceBody(props) {
       const { t, record, expanded, onToggle } = props;
-      const text = String(record.advice || '');
+      const text = record.actions?.length ? String(record.advice || '').replace(/```advisor-actions\s*\n[\s\S]*?\n```/, '').trim() : String(record.advice || '');
       if (text === '') return null;
       const head = expanded ? text : previewOf(text, 4, 380);
       const canCollapse = text.length > 380 || text.split('\n').filter(line => line.trim()).length > 4;
@@ -1426,6 +1626,12 @@ window.__ModuleLoader__.load({
         catch (err) { setError(String(err.message || err)); }
         finally { lock.current = false; setBusy(false); }
       }
+      function makeWork(candidate) {
+        store.write(sessionId, { selectedWorkId: null, workDraft: { requestId: uuid(), consultationId: record.id,
+          title: candidate?.title || record.question.slice(0,160), action: candidate?.action || '',
+          acceptance: candidate?.acceptance || '', priority: candidate?.priority || 'normal' } });
+        setDockView(sessionId, 'work');
+      }
       function saveVerdict(event) {
         event.preventDefault();
         if (verdict !== 'pending' && !note.trim()) { setError(t('verifyNeedsNote')); return; }
@@ -1447,11 +1653,18 @@ window.__ModuleLoader__.load({
             active ? h('span', { className: 'dsha-note' }, t('waited').replace('%s', elapsed)) : null),
           h('h3', { className: 'dsha-question-title' }, record.question || t('cardTitle')),
           h('p', { className: 'dsha-prov' }, `${record.target?.provider || '—'} / ${record.target?.model || '—'}`)),
+        record.workItemId ? button(t('workLinked'), () => {store.write(sessionId,{selectedWorkId:record.workItemId});setDockView(sessionId,'work');}) : null,
         record.staleness?.verdict === 'changed' ? h('p', { className: 'dsha-callout warn' }, t('staleNote'),
           record.staleness.changedPaths?.length ? h('span', { className: 'dsha-note' }, record.staleness.changedPaths.join(' · ')) : null) : null,
         active ? h('div', { className: 'dsha-running', role: 'status' }, h('span', { className: 'dsha-spinner', 'aria-hidden': true }),
           h('div', null, h('strong', null, t('waitingTitle')), h('p', { className: 'dsha-note' }, t('waitingHint')))) : null,
         h(AdviceBody, { t, record, expanded, onToggle: () => setExpanded(value => !value) }),
+        !active && record.actions?.length ? h('section', { className: 'dsha-action-candidates' },
+          h('h4', null, t('workCandidates')), h('p', { className: 'dsha-note' }, t('workCandidatesHint')),
+          record.actions.map((candidate, index) => h('div', { className: 'dsha-candidate', key: index },
+            h('strong', null, candidate.title), h('p', { className: 'dsha-note' }, candidate.evidence),
+            h('p', null, candidate.action), h('p', { className: 'dsha-note' }, `${t('workAcceptance')}：${candidate.acceptance}`),
+            button(t('workConvert'), () => makeWork(candidate))))) : null,
         caveat ? h('p', { className: 'dsha-callout' }, caveat) : null,
         record.error?.message ? h('p', { className: 'dsha-callout err', role: 'alert' }, record.error.message) : null,
         record.materials?.kinds?.length ? h('details', { className: 'dsha-details dsha-record-materials' },
@@ -1474,6 +1687,7 @@ window.__ModuleLoader__.load({
             if (!value?.ok) throw new Error(value?.message || value?.reason || t('deliveryFailed'));
             setMessage(t('deliveredLabel'));
           }), 'primary', record.deliveredToModel) : null,
+          !active && record.advice ? button(t('workConvert'), () => makeWork(null), 'ghost') : null,
           !active && record.advice ? button(t('recordVerdict'), () => {
             const kept = reviewDrafts.get(draftKey);
             setVerdict(kept?.verdict ?? record.verification ?? 'pending');
@@ -1535,10 +1749,133 @@ window.__ModuleLoader__.load({
      * screen or reads as a footnote fragment. The header has real width and its
      * ancestors do not scroll, so a panel can hang there without moving anything.
      */
+    const workFormDrafts = new Map();
+    function WorkBoard({ t, sessionId, rpcCall, bridge, onConsult, records }) {
+      const view = useStore(sessionId);
+      const items = view.workItems || [];
+      const [form, setForm] = useState(view.workDraft || workFormDrafts.get(sessionId) || null);
+      const [filter, setFilter] = useState('active');
+      const [query, setQuery] = useState('');
+      const [busy, setBusy] = useState(false);
+      const [error, setError] = useState('');
+      const [message, setMessage] = useState('');
+      const [approval, setApproval] = useState(null);
+      const [reviewAction, setReviewAction] = useState('');
+      const [reviewRevision, setReviewRevision] = useState(null);
+      const [evidence, setEvidence] = useState('');
+      const [acknowledged, setAcknowledged] = useState(false);
+      const lock = useRef(false);
+      const item = items.find(i => i.id === view.selectedWorkId);
+      const terminal = ['verified', 'deferred', 'rejected'];
+      useEffect(() => {
+        if (view.workDraft) { setForm(view.workDraft); store.write(sessionId, { workDraft: null }); }
+      }, [view.workDraft, sessionId]);
+      useEffect(() => { if (form) workFormDrafts.set(sessionId, form); else workFormDrafts.delete(sessionId); }, [form, sessionId]);
+      useEffect(() => { setApproval(null); setReviewAction(''); setEvidence(''); setError(''); }, [item?.id]);
+      useEffect(() => { setApproval(null); }, [item?.revision]);
+      const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
+      const button = (label, onClick, cls = 'ghost', disabled = false) => h('button', { type: 'button', className: `dsha-btn ${cls}`, disabled: busy || disabled, onClick }, label);
+      async function perform(action) {
+        if (lock.current) return;
+        lock.current = true; setBusy(true); setError(''); setMessage('');
+        try { await action(); await bridge.reloadRecords(sessionId); }
+        catch (err) { setError(String(err.message || err)); }
+        finally { lock.current = false; setBusy(false); }
+      }
+      function newWork() { setForm({ requestId: uuid(), title: '', action: '', acceptance: '', priority: 'normal' }); setApproval(null); }
+      const selectWork = id => { store.write(sessionId, { selectedWorkId: id }); setForm(null); };
+      function save(event) {
+        event.preventDefault();
+        perform(async () => {
+          const result = form.id
+            ? await rpcCall('work.edit', { sessionId, workItemId: form.id, expectedRevision: form.revision, input: form })
+            : await rpcCall('work.create', { sessionId, input: form });
+          setForm(null); store.write(sessionId, { selectedWorkId: result.item.id });
+          setMessage(t(result.item.status === 'ready' ? 'workSaved' : 'workExisting'));
+        });
+      }
+      async function recheck() {
+        const request = await rpcCall('work.recheck', { sessionId, workItemId: item.id });
+        store.write(sessionId, { retryRequest: request }); setDockView(sessionId, null); onConsult(sessionId);
+      }
+      const feedback = h(React.Fragment, null,
+        error ? h('p', { className: 'dsha-callout err', role: 'alert' }, error) : null,
+        message ? h('p', { className: 'dsha-note ok', role: 'status' }, message) : null);
+      if (form) return h('form', { className: 'dsha-work-form', onSubmit: save },
+        h('h3', null, form.id ? t('workEdit') : t('workNew')),
+        h('p', { className: 'dsha-note' }, form.consultationId ? t('workFromAdvice') : t('workCreateHint')),
+        h('fieldset', { className: 'dsha-fields', disabled: busy },
+          h('label', { className: 'dsha-field' }, t('workTitle'), h('input', { className: 'dsha-input', 'aria-label': t('workTitle'), value: form.title, required: true, maxLength: 160, onChange: e => update('title', e.target.value) })),
+          h('label', { className: 'dsha-field' }, t('workAction'), h('textarea', { className: 'dsha-textarea', 'aria-label': t('workAction'), value: form.action, required: true, maxLength: 2000, rows: 3, placeholder: t('workActionHint'), onChange: e => update('action', e.target.value) })),
+          h('label', { className: 'dsha-field' }, t('workAcceptance'), h('textarea', { className: 'dsha-textarea', 'aria-label': t('workAcceptance'), value: form.acceptance, required: true, maxLength: 2000, rows: 3, placeholder: t('workAcceptanceHint'), onChange: e => update('acceptance', e.target.value) })),
+          h('label', { className: 'dsha-field' }, t('workPriority'), h('select', { className: 'dsha-select', 'aria-label': t('workPriority'), value: form.priority, onChange: e => update('priority', e.target.value) },
+            ['high','normal','low'].map(p => h('option', { key: p, value: p }, t(`priority_${p}`)))))),
+        feedback, h('div', { className: 'dsha-row' }, h('button', { type: 'submit', className: 'dsha-btn primary', disabled: busy }, t('workSave')),
+          button(t('cancel'), () => setForm(null))));
+      if (item) {
+        const report = item.reports?.at(-1), review = item.reviews?.at(-1);
+        return h('div', { className: 'dsha-work-detail' },
+          h('div', { className: 'dsha-row' }, button(t('workBack'), () => selectWork(null)), h('span', { className: `dsha-work-state ${item.status}` }, t(`workState_${item.status}`))),
+          h('h3', null, item.title), h('span', { className: 'dsha-note' }, t(`priority_${item.priority}`)),
+          h('div', { className: 'dsha-work-section' }, h('strong', null, t('workAction')), h('p', null, item.action)),
+          h('div', { className: 'dsha-work-section acceptance' }, h('strong', null, t('workAcceptance')), h('p', null, item.acceptance)),
+          item.source ? h('details', { className: 'dsha-details' }, h('summary', null, t('workSource')),
+            h('p', { className: 'dsha-note' }, item.source.truncated ? t('truncatedNote') : t('workSourceHint')),
+            h('p', { className: 'dsha-advice' }, item.source.advice)) : null,
+          ['sending','assigned'].includes(item.status) ? h('p', { className: 'dsha-callout' }, t('workAssignedHint')) : null,
+          item.status === 'uncertain' ? h('p', { className: 'dsha-callout warn' }, t('workUncertainHint'), h('span', { className: 'dsha-note' }, item.dispatch?.error)) : null,
+          report ? h('section', { className: 'dsha-work-section report' }, h('strong', null, t('workReport')),
+            h('span', { className: 'dsha-note' }, t(`report_${report.outcome}`)), h('p', null, report.summary), h('blockquote', { className: 'dsha-quote' }, report.evidence),
+            h('p', { className: 'dsha-note' }, t('workReportHint'))) : null,
+          review ? h('section', { className: 'dsha-work-section' }, h('strong', null, t('workReviewLog')), h('p', null, review.evidence)) : null,
+          item.rechecks?.length ? h('div', { className: 'dsha-block' }, h('strong', null, t('workRechecks')),
+            item.rechecks.slice().reverse().map(r => {
+              const record = records.find(c => c.id === r.consultationId);
+              return record ? h(React.Fragment, { key: r.consultationId }, button(`${t('workRecheckResult')} · ${stateLabel(t, record.state)}`, () => { store.write(sessionId, { selectedId: record.id }); setDockView(sessionId, 'card'); }))
+                : h('span', { className: 'dsha-note', key: r.consultationId }, t('workHistoryRemoved'));
+            })) : null,
+          h('div', { className: 'dsha-row' },
+            item.status === 'ready' ? button(t('workHandoff'), () => perform(async () => {
+              const result = await rpcCall('work.preview', { sessionId, workItemId: item.id, expectedRevision: item.revision }); setApproval(result);
+            }), 'primary') : null,
+            item.status === 'ready' ? button(t('workEdit'), () => setForm({ ...item })) : null,
+            button(t('workRecheck'), () => perform(recheck), 'ghost', item.status === 'sending'),
+            button(t('workReview'), () => { setReviewAction('verify'); setReviewRevision(item.revision); setEvidence(''); setAcknowledged(false); }, 'ghost', item.status === 'sending')),
+          approval ? h('section', { className: 'dsha-work-approval' }, h('h4', null, t('workHandoffTitle')),
+            h('p', { className: 'dsha-note' }, t('workHandoffHint')), h('pre', { className: 'dsha-pre' }, approval.text),
+            h('div', { className: 'dsha-row' }, button(t('workConfirmHandoff'), () => perform(async () => {
+              await rpcCall('work.dispatch', { sessionId, workItemId: item.id, expectedRevision: approval.revision, expectedDigest: approval.digest }); setApproval(null);
+            }), 'primary'), button(t('cancel'), () => setApproval(null)))) : null,
+          reviewAction ? h('form', { className: 'dsha-work-review', onSubmit: event => {
+            event.preventDefault(); perform(async () => {
+              await rpcCall('work.review', { sessionId, workItemId: item.id, expectedRevision: reviewRevision, action: reviewAction, evidence, acknowledgeDuplicateRisk: acknowledged });
+              setReviewAction(''); setEvidence('');
+            });
+          } }, h('h4', null, t('workReview')), h('label', { className: 'dsha-field' }, t('workDecision'),
+            h('select', { className: 'dsha-select', 'aria-label': t('workDecision'), value: reviewAction, disabled: busy, onChange: e => {setReviewAction(e.target.value);setAcknowledged(false);} },
+              ['verify','reopen','defer','reject'].map(value => h('option', {key:value,value}, t(`workDecision_${value}`))))),
+            h('label', { className: 'dsha-field' }, t('workEvidence'), h('textarea', { className: 'dsha-textarea', 'aria-label': t('workEvidence'), value: evidence, required: true, maxLength: 4000, rows: 3, disabled: busy, onChange: e => setEvidence(e.target.value) })),
+            reviewAction === 'reopen' && ['assigned','uncertain'].includes(item.status) ? h('label', { className: 'dsha-scope-option' }, h('input', { type: 'checkbox', required: true, checked: acknowledged, onChange: e => setAcknowledged(e.target.checked) }), t('workRepeatAck')) : null,
+            h('div', { className: 'dsha-row' }, h('button', {type:'submit',className:'dsha-btn primary',disabled:busy}, t('workSaveDecision')), button(t('cancel'), () => setReviewAction('')))) : null,
+          feedback);
+      }
+      const filtered = items.filter(i => (filter === 'all' || (filter === 'active' ? !terminal.includes(i.status) : filter === 'review' ? i.status === 'reported' : terminal.includes(i.status))) && `${i.title} ${i.action}`.toLowerCase().includes(query.toLowerCase()));
+      return h('div', { className: 'dsha-work-board' },
+        h('div', { className: 'dsha-work-intro' }, h('h3', null, t('workHeading')), h('p', {className:'dsha-note'}, t('workHint'))),
+        h('div', { className: 'dsha-outcome-grid' }, [[t('workActive'), view.workCounts?.active || 0],[t('workAwaiting'), view.workCounts?.awaitingReview || 0],[t('workVerified'), view.workCounts?.verified || 0]].map(([label,value]) => h('div',{key:label},h('span',{className:'dsha-note'},label),h('strong',null,value)))),
+        h('div', { className: 'dsha-row' }, button(t('workNew'),newWork,'primary'), button(t('workExport'), () => perform(async () => {const result=await rpcCall('work.export',{sessionId});await navigator.clipboard.writeText(result.markdown);setMessage(t('workExported'));}),'ghost',!items.length)),
+        h('input', { type:'search',className:'dsha-input','aria-label':t('workSearch'),placeholder:t('workSearch'),value:query,onChange:e=>setQuery(e.target.value) }),
+        h('div', { className: 'dsha-filters', role:'group','aria-label':t('workFilters') }, ['active','review','closed','all'].map(value => h('button',{key:value,type:'button','aria-pressed':filter===value,onClick:()=>setFilter(value)},t(`workFilter_${value}`)))),
+        h('div', { className:'dsha-list' }, filtered.length ? filtered.map(i => h('button', {key:i.id,type:'button',className:'dsha-history-item dsha-work-item',onClick:()=>selectWork(i.id)},
+          h('div',{className:'dsha-history-top'},h('strong',null,t(`workState_${i.status}`)),h('span',null,t(`priority_${i.priority}`))),h('span',{className:'dsha-history-question'},i.title),h('span',{className:'dsha-note'},i.acceptance)))
+          : h('div', {className:'dsha-empty'},h('strong',null,t('workEmpty')),h('p',{className:'dsha-note'},t('workEmptyHint')))), feedback);
+    }
+
     function AdvisorPanel(props) {
       const { t, sessionId, rpcCall, bridge, records, card, onConsult, triggerRef } = props;
       const dockView = useDockView(sessionId);
       const showHistory = dockView === 'history';
+      const showWork = dockView === 'work';
       const view = useStore(sessionId);
       const [filter, setFilter] = useState('all');
       const [query, setQuery] = useState('');
@@ -1575,11 +1912,12 @@ window.__ModuleLoader__.load({
             h('button', { className: 'dsha-icon-btn', type: 'button', onClick: () => bridge.reloadRecords(sessionId), 'aria-label': t('refresh') }, '↻'),
             h('button', { className: 'dsha-icon-btn', type: 'button', onClick: close, 'aria-label': t('close') }, '×'))),
         h('nav', { className: 'dsha-tabs dsha-panel-tabs', 'aria-label': t('advisorViews') },
-          h('button', { type: 'button', 'aria-pressed': !showHistory, onClick: () => setDockView(sessionId, 'card') }, t('cardTitle')),
+          h('button', { type: 'button', 'aria-pressed': showWork, onClick: () => setDockView(sessionId, 'work') }, `${t('workTab')} · ${view.workCounts?.active || 0}`),
+          h('button', { type: 'button', 'aria-pressed': !showHistory && !showWork, onClick: () => setDockView(sessionId, 'card') }, t('cardTitle')),
           h('button', { type: 'button', 'aria-pressed': showHistory, onClick: () => setDockView(sessionId, 'history') }, `${t('historyOpen')} · ${records.length}`)),
         h('div', { className: 'dsha-panel-body' },
           view.error ? h('p', { className: 'dsha-callout err', role: 'alert' }, view.error) : null,
-          showHistory ? h(React.Fragment, null,
+          showWork ? h(WorkBoard, { t, sessionId, rpcCall, bridge, onConsult, records }) : showHistory ? h(React.Fragment, null,
             h('label', { className: 'dsha-search' }, h('span', { className: 'dsha-sr-only' }, t('searchHistory')),
               h('input', { className: 'dsha-input', type: 'search', placeholder: t('searchHistory'), value: query, onChange: event => setQuery(event.target.value) })),
             h('div', { className: 'dsha-filters', role: 'group', 'aria-label': t('filterHistory') },
@@ -1612,23 +1950,28 @@ window.__ModuleLoader__.load({
       const running = records.filter(isPending);
       const pending = running[0];
       const unverified = records.filter(needsReview);
+      const activeWork = view.workCounts?.active || 0;
+      const awaitingWorkReport = (view.workItems || []).some(item => ['sending','assigned','uncertain','blocked'].includes(item.status));
       const now = useNow(Boolean(pending));
       useEffect(() => {
-        if (!open && !running.length) return undefined;
-        const timer = setInterval(() => bridge.reloadRecords(sessionId), running.length ? 1000 : 5000);
-        return () => clearInterval(timer);
-      }, [bridge, sessionId, running.length, open]);
+        if (!open && !running.length && !awaitingWorkReport) return undefined;
+        const refresh = () => { if (document.visibilityState !== 'hidden') bridge.reloadRecords(sessionId); };
+        const timer = setInterval(refresh, running.length ? 1000 : open ? 5000 : 10000);
+        document.addEventListener('visibilitychange', refresh);
+        return () => { clearInterval(timer); document.removeEventListener('visibilitychange', refresh); };
+      }, [bridge, sessionId, running.length, open, awaitingWorkReport]);
       const card = records.find(record => record.id === view.selectedId) || pending || records[0] || null;
       let tone = 'quiet';
       let label = t('sectionLabel');
       if (pending) {
         tone = 'warn'; label = t('hdRunning').replace('%s', Math.max(0, Math.floor((now - Date.parse(pending.createdAt)) / 1000)));
-      } else if (unverified.length) { tone = 'brand'; label = t('hdVerdict').replace('%s', unverified.length); }
+      } else if (activeWork) { tone = 'brand'; label = t('workBadge').replace('%s', activeWork); }
+      else if (unverified.length) { tone = 'brand'; label = t('hdVerdict').replace('%s', unverified.length); }
       else if (view.error) { tone = 'err'; label = t('loadFailed'); }
       return h('div', { className: 'dsha-hdwrap' },
-        h('button', { type: 'button', className: `dsha-hd ${tone}`, ref: triggerRef,
+        h('button', { type: 'button', className: `dsha-hd ${tone}`, ref: triggerRef, disabled: !view.loaded,
           'aria-label': label, 'aria-haspopup': 'dialog', 'aria-expanded': open,
-          onClick: () => setDockView(sessionId, open ? null : unverified.length ? 'history' : 'card') },
+          onClick: () => setDockView(sessionId, open ? null : activeWork ? 'work' : unverified.length ? 'history' : 'card') },
           h('span', { className: 'dsha-dot' }), h('span', null, label)),
         open ? h(AdvisorPanel, { key: sessionId, t, sessionId, rpcCall, bridge, records, card, onConsult, triggerRef }) : null);
     }
