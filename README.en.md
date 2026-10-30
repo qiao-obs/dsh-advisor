@@ -43,8 +43,9 @@ The conversation workspace now supports **opinion → scoped task → confirmed 
 
 - Manual consultations can propose up to three actions in the same response. Edit scope, priority and acceptance criteria before creating a task. Existing free-text opinions and direct task creation also work.
 - Preview the exact task package before handing it to the current session's working model. `advisor_work_report` records changes, actual checks and blockers. Delivery is not completion; reported completion only means awaiting review.
+- Long tasks can save meaningful progress checkpoints, next steps and per-check evidence. `advisor_work_context` restores only the invoking session’s queue or task details. Reassignment includes the latest human decision and explicitly historical report.
 - Recheck with the advisor through the usual material preview and explicit confirmation. Only a human decision with evidence records acceptance.
-- Search and filter tasks, reopen work, use common review-question presets, and export Markdown. Original opinions, reports and human decisions survive clearing consultation history.
+- Search and filter tasks, reopen work, use review, research and document-handoff presets, and export Markdown. Original opinions, reports and human decisions survive clearing consultation history.
 - Tasks persist separately at `<DSH_HOME>/dsh-advisor/work/<SHA-256-of-session-ID>.json`. Ambiguous deliveries are never automatically retried.
 
 Organizing tasks does not call a model. Dispatch can incur normal host model/tool costs; advisor rechecks consume separate consultation calls. This is a session-local work loop, not a cross-project scheduler. See [implementation, screenshots and host acceptance requirements](docs/workflow-review.md).
@@ -204,7 +205,7 @@ object spread, and that is how a ceiling silently stops existing.
 
 ## Tools
 
-With profile storage available, the plugin registers `advisor_consult` and `advisor_work_report`. The report tool accepts a user-dispatched task ID, assignment ID, outcome, summary and evidence, and uses the host's actual execution session. It cannot dispatch work, call the advisor or mark human acceptance. Without profile storage only the original consultation tool is registered.
+With profile storage available, the plugin registers `advisor_consult`, `advisor_work_report` and read-only `advisor_work_context`. The context tool restores the current session’s queue or a selected task without dispatching anything. The report tool accepts a user-dispatched task ID, assignment ID, outcome, summary and evidence, and uses the host's actual execution session. Progress reports require a concrete next step; optional checks carry reported passed/failed/not-run states with evidence. The context and report tools cannot dispatch work, call the advisor or mark human acceptance. Without profile storage only the original consultation tool is registered.
 
 
 ```jsonc
@@ -289,7 +290,7 @@ Logic tests are offline — no provider, no network, no cost. Main coverage:
 
 | `tests/workflow.test.mjs` | durable tasks, assignment deduplication, timeout/unload, session isolation, reports, human acceptance, revision conflicts, rechecks and action candidates |
 
-**146/146** logic tests and **12/12** Chromium scenarios pass. Browser scenarios run real client components and RPC handlers with a simulated host and fake model. See [workflow validation](docs/workflow-review.md) for reproduction and limitations. The older real-desktop acceptance record in `docs/acceptance-v0.2.md` does not verify this branch's new work loop.
+**153/153** logic tests and **14/14** Chromium scenarios pass. Browser scenarios run real client components and RPC handlers with a simulated host and fake model. See [continuation validation](docs/continuation-review.md) for reproduction and limitations. The older real-desktop acceptance record in `docs/acceptance-v0.2.md` does not verify this branch's new work loop.
 
 ## Known limitations
 

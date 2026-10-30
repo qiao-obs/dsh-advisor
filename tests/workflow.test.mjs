@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { createWorkflow, createWorkReportTool, workflowPath } from '../lib/workflow.js'
+import { createWorkflow, createWorkReportTool, createWorkContextTool, workflowPath } from '../lib/workflow.js'
 import { parseCandidates } from '../lib/action-candidates.js'
 import { createHost } from '../lib/host.js'
 import { openHistory } from '../lib/history.js'
@@ -159,9 +159,9 @@ test('work report tool is registered only with real profile storage and is dispo
   const {home}=fixture(t),tools=makeFakeTools(),llm=makeFakeLlm()
   const ctx=makeFakeCtx({llm,tools,services:{profileContext:{home}}})
   apply(ctx)
-  assert.ok(tools.get('advisor_work_report'))
+  assert.ok(tools.get('advisor_work_report'));assert.ok(tools.get('advisor_work_context'))
   assert.equal(llm.state.calls,0)
-  ctx._dispose();assert.equal(tools.get('advisor_work_report'),null)
+  ctx._dispose();assert.equal(tools.get('advisor_work_report'),null);assert.equal(tools.get('advisor_work_context'),null)
 })
 test('work export preserves original findings, model reports and separate human decisions',async t=>{
   const {workflow}=fixture(t),item=await assign(workflow,workflow.create('s',{...DRAFT,consultationId:'source'}))
@@ -218,4 +218,87 @@ test('unloading ends a pending delivery wait without losing uncertainty or apply
   release();await new Promise(r=>setImmediate(r))
   assert.equal(workflow.get('s',item.id).status,'uncertain')
   await assert.rejects(assign(workflow,workflow.get('s',item.id)),{code:'unloaded'})
+})
+
+test('meaningful progress persists with next step and checks without claiming completion',async t=>{
+  const {workflow,home}=fixture(t),item=await assign(workflow,workflow.create('s',DRAFT))
+  const tool=createWorkReportTool({home})
+  const progress={...reportFor(item),outcome:'in_progress',nextStep:'Check cancellation before changing the handler.',checks:[{label:'Double click regression',status:'failed',evidence:'Two requests observed in the reproduction.'}]}
+  const result=await tool.execute(progress,{agent:{session:{id:'s'}},callId:'checkpoint'})
+  assert.equal(result.status,'working');assert.match(result.message,/仍在进行/)
+  const fresh=createWorkflow({home})
+  assert.equal(fresh.list('s').counts.running,1);assert.equal(fresh.list('s').counts.awaitingReview,0)
+  assert.deepEqual(fresh.get('s',item.id).reports[0].checks,progress.checks)
+  assert.equal(fresh.get('s',item.id).reports[0].nextStep,progress.nextStep)
+  await tool.execute(progress,{agent:{session:{id:'s'}},callId:'checkpoint'})
+  assert.equal(fresh.get('s',item.id).reports.length,1)
+  const completed=workflow.report('s',{...reportFor(item),checks:progress.checks},'completed')
+  assert.equal(completed.status,'reported');assert.equal(workflow.list('s').counts.verified,0)
+})
+test('progress without a next step and invalid checks are refused without partial writes',async t=>{
+  const {workflow}=fixture(t),item=await assign(workflow,workflow.create('s',DRAFT))
+  for(const patch of [
+    {outcome:'in_progress'}, {checks:[{label:'A',status:'passed',evidence:''}]},
+    {checks:[{label:'A',status:'verified',evidence:'Claim'}]}, {checks:Array(13).fill({label:'A',status:'passed',evidence:'Check'})},
+    {nextStep:'x'.repeat(1501)}
+  ])assert.throws(()=>workflow.report('s',{...reportFor(item),...patch},'invalid'),{code:'invalid-input'})
+  assert.equal(workflow.get('s',item.id).revision,item.revision)
+  assert.equal(workflow.get('s',item.id).reports.length,0)
+})
+test('context tool restores only the actual session and cannot dispatch or mutate work',async t=>{
+  const {workflow,home,messages}=fixture(t),item=await assign(workflow,workflow.create('s',DRAFT))
+  workflow.report('s',{...reportFor(item),outcome:'in_progress',nextStep:'Resume by checking the cancellation path'},'progress')
+  const file=workflowPath(home,'s'),before=readFileSync(file,'utf8'),tool=createWorkContextTool({home})
+  const result=await tool.execute({workItemId:item.id,sessionId:'foreign'},{agent:{session:{id:'s'}}})
+  assert.equal(result.ok,true);assert.equal(result.context.task.assignmentId,item.dispatch.id)
+  assert.equal(result.context.task.latestReport.nextStep,'Resume by checking the cancellation path')
+  assert.equal(result.context.task.reportFromCurrentAssignment,true)
+  assert.equal((await tool.execute({workItemId:item.id},{agent:{session:{id:'foreign'}}})).ok,false)
+  assert.equal((await tool.execute({workItemId:item.id},{})).ok,false)
+  assert.equal(readFileSync(file,'utf8'),before);assert.equal(messages.length,1)
+  assert.match(tool.output.render({},result)[0].text,/只读恢复/)
+})
+test('context queues are bounded, paginated and omit report bodies and assignment tokens',t=>{
+  const {workflow}=fixture(t)
+  for(let n=0;n<23;n++)workflow.create('s',{...DRAFT,requestId:'page-'+n,title:'Task '+n})
+  const first=workflow.context('s'),second=workflow.context('s',null,first.nextOffset)
+  assert.equal(first.items.length,20);assert.equal(second.items.length,3);assert.equal(second.nextOffset,null)
+  assert.equal(new Set([...first.items,...second.items].map(i=>i.id)).size,23)
+  assert.equal(first.counts.ready,23)
+  for(const item of first.items){assert.equal(item.assignmentId,undefined);assert.equal(item.latestReport,undefined);assert.equal(item.nextAction,'prepare')}
+  assert.throws(()=>workflow.context('s',null,-1),{code:'invalid-input'})
+})
+test('reopened tasks carry the human correction and previous progress into the next approved package',async t=>{
+  const {workflow,home,messages}=fixture(t),item=await assign(workflow,workflow.create('s',DRAFT))
+  const progress=workflow.report('s',{...reportFor(item),outcome:'in_progress',nextStep:'Test the retry path'},'progress')
+  assert.throws(()=>workflow.review('s',item.id,{expectedRevision:progress.revision,action:'reopen',evidence:'Narrow to retry behavior'}),{code:'duplicate-risk'})
+  const ready=workflow.review('s',item.id,{expectedRevision:progress.revision,action:'reopen',evidence:'Narrow to retry behavior',acknowledgeDuplicateRisk:true})
+  const ctx=workflow.context('s',item.id)
+  assert.equal(ctx.task.assignmentId,null);assert.equal(ctx.task.reportFromCurrentAssignment,false)
+  assert.equal(workflow.context('s').items[0].nextStep,'')
+  assert.match(workflow.recheckRequest('s',item.id).selectionText,/历史回报/)
+  const preview=workflow.preview('s',item.id,ready.revision)
+  assert.match(preview.text,/Narrow to retry behavior/);assert.match(preview.text,/Test the retry path/)
+  assert.match(preview.text,/上次派单/);assert.equal(messages.length,1)
+  const next=await assign(workflow,ready)
+  assert.notEqual(next.dispatch.id,item.dispatch.id)
+  assert.throws(()=>workflow.report('s',reportFor(item),'old'),{code:'assignment-mismatch'})
+  assert.equal(createWorkflow({home}).context('s',item.id).task.reportFromCurrentAssignment,false)
+})
+test('late delivery acknowledgment preserves a progress checkpoint',async t=>{
+  let workflow
+  const f=fixture(t,{getAgent:()=>({followup:async()=>{const item=workflow.list('s').items[0];workflow.report('s',{...reportFor(item),outcome:'in_progress',nextStep:'Continue the remaining check'},'early-progress')}})})
+  workflow=f.workflow
+  const item=await assign(workflow,workflow.create('s',DRAFT))
+  assert.equal(item.status,'working');assert.equal(item.dispatch.state,'delivered')
+})
+test('recheck excerpts retain all check statuses and next steps within the material budget',async t=>{
+  const {workflow}=fixture(t),item=await assign(workflow,workflow.create('s',{...DRAFT,consultationId:'source'}))
+  const checks=Array.from({length:12},(_,n)=>({label:`Check ${n}:`+'x'.repeat(180),status:n===11?'failed':'not_run',evidence:'e'.repeat(800)}))
+  workflow.report('s',{...reportFor(item),summary:'s'.repeat(3000),evidence:'e'.repeat(4000),nextStep:'Last step '+'n'.repeat(1400),checks},'large')
+  const request=workflow.recheckRequest('s',item.id)
+  assert.ok(request.selectionText.length<=6000)
+  for(let n=0;n<12;n++)assert.ok(request.selectionText.includes(`Check ${n}:`))
+  assert.match(request.selectionText,/failed: Check 11/);assert.match(request.selectionText,/Last step/)
+  assert.match(workflow.exportMarkdown('s'),/failed: Check 11/)
 })

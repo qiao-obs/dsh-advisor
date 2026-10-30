@@ -50,6 +50,33 @@ window.__ModuleLoader__.load({
     // ------------------------------------------------------------------ locale
 
     const ZH = {
+      workState_working: "主力处理中",
+      report_in_progress: "进度检查点，尚未完成",
+      workNextStep: "下一步",
+      workChecks: "逐项检查（主力报告）",
+      check_passed: "报告通过",
+      check_failed: "报告失败",
+      check_not_run: "尚未执行",
+      workCheckWarning: "仍有失败或未执行的检查。核对这些缺口后再决定是否验收。",
+      workOldReport: "这是上次派单的报告，不代表本次已经完成。",
+      workProgressHistory: "查看之前的进度与报告",
+      workReportedAt: "最近回报",
+      workFilter_ready: "待交付",
+      workFilter_running: "执行中",
+      workFilter_attention: "需解阻",
+      workNext_prepare: "确认范围和验收条件，预览后交付。",
+      workNext_await_delivery: "等待接收确认，先不要重复发送。",
+      workNext_await_report: "已交付，等待主力提供进度或结果。",
+      workNext_continue: "按最近检查点继续；仍需核对实际进度。",
+      workNext_review: "对照证据验收，或带着报告请顾问复查。",
+      workNext_unblock: "先补齐阻塞所需信息，再决定继续或调整范围。",
+      workNext_check_delivery: "先查看主对话确认是否已接收，避免重复执行。",
+      workNext_closed: "已记录处理决定，可查看依据或重新开放。",
+      preset_research: "资料研究",
+      preset_document: "文档交付",
+      presetQuestion_research: "请检查所提供资料是否足以回答当前研究问题，区分事实、推断和缺失证据。按优先级给出需要补查的来源类型、具体问题与可交付的结论表；不要虚构来源或把未读资料当作已核实。",
+      presetQuestion_document: "请按目标读者与使用场景检查这份文档的结构、事实依据、遗漏信息和行动指引。给出最小修改清单及逐项可检查的交付标准；区分内容缺口与措辞润色。",
+
       workExisting: '已打开该意见对应的现有待办，未重复创建。',
       workLinked: '返回关联待办',
       workScopeMissing: '该类材料尚未在设置中开放，本次不会自动发送。可先调整材料设置，或在允许的补充片段中提供必要内容。',
@@ -392,6 +419,33 @@ window.__ModuleLoader__.load({
     };
 
     const EN = {
+      workState_working: "In progress",
+      report_in_progress: "Progress checkpoint, unfinished",
+      workNextStep: "Next step",
+      workChecks: "Checks reported by the model",
+      check_passed: "Reported passed",
+      check_failed: "Reported failed",
+      check_not_run: "Not run",
+      workCheckWarning: "Some checks failed or were not run. Review these gaps before accepting the task.",
+      workOldReport: "This report belongs to a previous assignment; it does not establish completion of this attempt.",
+      workProgressHistory: "Earlier checkpoints and reports",
+      workReportedAt: "Latest report",
+      workFilter_ready: "Ready",
+      workFilter_running: "In progress",
+      workFilter_attention: "Needs attention",
+      workNext_prepare: "Check scope and acceptance criteria, then preview the assignment.",
+      workNext_await_delivery: "Wait for acknowledgment before sending anything again.",
+      workNext_await_report: "Assigned; waiting for a progress checkpoint or result.",
+      workNext_continue: "Continue from the latest checkpoint and verify the actual state.",
+      workNext_review: "Review the evidence or ask the advisor to recheck it.",
+      workNext_unblock: "Resolve the missing input before continuing or changing scope.",
+      workNext_check_delivery: "Check the main conversation for receipt before any retry.",
+      workNext_closed: "A decision is recorded. Read its evidence or reopen the task.",
+      preset_research: "Research evidence",
+      preset_document: "Document handoff",
+      presetQuestion_research: "Check whether the supplied material can answer the research question. Separate facts, inferences and missing evidence. Prioritize source types and questions to investigate, with a concrete findings table as the deliverable. Never invent sources or claim unread material is verified.",
+      presetQuestion_document: "Review this document for its audience and use case: structure, factual support, omissions and actionable instructions. Propose minimal changes with observable delivery criteria. Separate content gaps from wording improvements.",
+
       workExisting: 'Opened the existing task for this opinion without creating a duplicate.',
       workLinked: 'Back to linked task',
       workScopeMissing: 'This material type is disabled in settings and will not be sent automatically. Adjust the scope or provide an allowed excerpt.',
@@ -889,6 +943,13 @@ window.__ModuleLoader__.load({
 .dsha-work-section { display:flex; flex-direction:column; gap:8px; font-size:13px; }
 .dsha-work-section p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8; }
 .dsha-work-section.acceptance { padding:14px; border-radius:10px; background:var(--ad-soft); border-left:3px solid var(--ad-brand); }
+
+.dsha-checks { display:flex; flex-direction:column; gap:10px; }
+.dsha-check { padding:12px; border:1px solid var(--ad-border); border-radius:8px; display:flex; flex-direction:column; gap:6px; overflow-wrap:anywhere; }
+.dsha-check-status { font-size:12px; color:var(--ad-muted); }
+.dsha-check.failed .dsha-check-status,.dsha-check.not_run .dsha-check-status { color:var(--ad-warn); }
+.dsha-check.passed .dsha-check-status,.dsha-work-state.working { color:var(--ad-brand); }
+
 .dsha-work-section.report { padding:16px 0; border-block:1px solid var(--ad-border); }
 .dsha-work-review,.dsha-work-approval { padding:16px; border:1px solid var(--ad-border); border-radius:10px; }
 .dsha-action-candidates { display:flex; flex-direction:column; gap:12px; }
@@ -1540,7 +1601,7 @@ window.__ModuleLoader__.load({
         !preview ? h('fieldset', { className: 'dsha-fields', disabled: busy },
           !workLink ? h('details', {className:'dsha-details'}, h('summary',null,t('workPresets')),
             h('p',{className:'dsha-note'},t('workPresetsHint')),
-            h('div',{className:'dsha-row'}, ['plan','diff','test','acceptance'].map(kind => h('button', {key:kind,type:'button',className:'dsha-btn',onClick:()=>{setQuestion(t(`presetQuestion_${kind}`));setFocus(kind==='acceptance'?'general':kind);}}, t(`preset_${kind}`))))) : null,
+            h('div',{className:'dsha-row'}, ['plan','diff','test','acceptance','research','document'].map(kind => h('button', {key:kind,type:'button',className:'dsha-btn',onClick:()=>{setQuestion(t(`presetQuestion_${kind}`));setFocus(['plan','diff','test'].includes(kind)?kind:'general');}}, t(`preset_${kind}`))))) : null,
           h('div', { className: 'dsha-tabs', role: 'group', 'aria-label': t('focusLabel') },
             ['general', 'plan', 'diff', 'test'].map(value => h('button', { key: value, type: 'button', 'aria-pressed': focus === value,
               onClick: () => setFocus(value) }, t(`focus_${value}`)))),
@@ -1798,6 +1859,19 @@ window.__ModuleLoader__.load({
         const request = await rpcCall('work.recheck', { sessionId, workItemId: item.id });
         store.write(sessionId, { retryRequest: request }); setDockView(sessionId, null); onConsult(sessionId);
       }
+      function renderReport(report, previous = false) {
+        return h('section', { key: report.callId || report.at, className: 'dsha-work-section report' },
+          h('strong', null, previous ? t('workOldReport') : t('workReport')),
+          h('span', {className:'dsha-note'}, t(`report_${report.outcome}`)),
+          h('time', {className:'dsha-note', dateTime:report.at}, `${t('workReportedAt')} · ${fmtDateTime(report.at)}`),
+          h('p', null, report.summary), h('blockquote', {className:'dsha-quote'}, report.evidence),
+          report.nextStep ? h('div',{className:'dsha-callout'},h('strong',null,t('workNextStep')),h('p',null,report.nextStep)) : null,
+          report.checks?.length ? h('div',{className:'dsha-checks'},h('strong',null,t('workChecks')),
+            report.checks.map((check,index)=>h('div',{key:index,className:`dsha-check ${check.status}`},
+              h('span',{className:'dsha-check-status'},t(`check_${check.status}`)),h('strong',null,check.label),h('p',null,check.evidence)))) : null,
+          report.checks?.some(check=>check.status!=='passed') ? h('p',{className:'dsha-callout warn'},t('workCheckWarning')) : null,
+          h('p',{className:'dsha-note'},t('workReportHint')));
+      }
       const feedback = h(React.Fragment, null,
         error ? h('p', { className: 'dsha-callout err', role: 'alert' }, error) : null,
         message ? h('p', { className: 'dsha-note ok', role: 'status' }, message) : null);
@@ -1824,9 +1898,10 @@ window.__ModuleLoader__.load({
             h('p', { className: 'dsha-advice' }, item.source.advice)) : null,
           ['sending','assigned'].includes(item.status) ? h('p', { className: 'dsha-callout' }, t('workAssignedHint')) : null,
           item.status === 'uncertain' ? h('p', { className: 'dsha-callout warn' }, t('workUncertainHint'), h('span', { className: 'dsha-note' }, item.dispatch?.error)) : null,
-          report ? h('section', { className: 'dsha-work-section report' }, h('strong', null, t('workReport')),
-            h('span', { className: 'dsha-note' }, t(`report_${report.outcome}`)), h('p', null, report.summary), h('blockquote', { className: 'dsha-quote' }, report.evidence),
-            h('p', { className: 'dsha-note' }, t('workReportHint'))) : null,
+          !['sending','assigned','uncertain'].includes(item.status) ? h('p',{className:'dsha-callout'},t(`workNext_${item.nextAction || 'prepare'}`)) : null,
+          report ? renderReport(report, !terminal.includes(item.status) && report.assignmentId !== item.dispatch?.id) : null,
+          item.reports?.length > 1 ? h('details',{className:'dsha-details'},h('summary',null,t('workProgressHistory')),
+            item.reports.slice(0,-1).reverse().map(r=>renderReport(r,r.assignmentId!==item.dispatch?.id))) : null,
           review ? h('section', { className: 'dsha-work-section' }, h('strong', null, t('workReviewLog')), h('p', null, review.evidence)) : null,
           item.rechecks?.length ? h('div', { className: 'dsha-block' }, h('strong', null, t('workRechecks')),
             item.rechecks.slice().reverse().map(r => {
@@ -1855,19 +1930,24 @@ window.__ModuleLoader__.load({
             h('select', { className: 'dsha-select', 'aria-label': t('workDecision'), value: reviewAction, disabled: busy, onChange: e => {setReviewAction(e.target.value);setAcknowledged(false);} },
               ['verify','reopen','defer','reject'].map(value => h('option', {key:value,value}, t(`workDecision_${value}`))))),
             h('label', { className: 'dsha-field' }, t('workEvidence'), h('textarea', { className: 'dsha-textarea', 'aria-label': t('workEvidence'), value: evidence, required: true, maxLength: 4000, rows: 3, disabled: busy, onChange: e => setEvidence(e.target.value) })),
-            reviewAction === 'reopen' && ['assigned','uncertain'].includes(item.status) ? h('label', { className: 'dsha-scope-option' }, h('input', { type: 'checkbox', required: true, checked: acknowledged, onChange: e => setAcknowledged(e.target.checked) }), t('workRepeatAck')) : null,
+            reviewAction === 'reopen' && ['assigned','working','uncertain'].includes(item.status) ? h('label', { className: 'dsha-scope-option' }, h('input', { type: 'checkbox', required: true, checked: acknowledged, onChange: e => setAcknowledged(e.target.checked) }), t('workRepeatAck')) : null,
             h('div', { className: 'dsha-row' }, h('button', {type:'submit',className:'dsha-btn primary',disabled:busy}, t('workSaveDecision')), button(t('cancel'), () => setReviewAction('')))) : null,
           feedback);
       }
-      const filtered = items.filter(i => (filter === 'all' || (filter === 'active' ? !terminal.includes(i.status) : filter === 'review' ? i.status === 'reported' : terminal.includes(i.status))) && `${i.title} ${i.action}`.toLowerCase().includes(query.toLowerCase()));
+      const filtered = items.filter(i => {
+        const matches = {all:true, active:!terminal.includes(i.status), review:i.status==='reported', closed:terminal.includes(i.status),
+          ready:i.status==='ready', running:['sending','assigned','working'].includes(i.status), attention:['blocked','uncertain'].includes(i.status)};
+        const latest = i.reports?.at(-1);
+        return matches[filter] && `${i.title} ${i.action} ${i.acceptance} ${latest?.summary || ''} ${latest?.nextStep || ''}`.toLowerCase().includes(query.toLowerCase());
+      });
       return h('div', { className: 'dsha-work-board' },
         h('div', { className: 'dsha-work-intro' }, h('h3', null, t('workHeading')), h('p', {className:'dsha-note'}, t('workHint'))),
         h('div', { className: 'dsha-outcome-grid' }, [[t('workActive'), view.workCounts?.active || 0],[t('workAwaiting'), view.workCounts?.awaitingReview || 0],[t('workVerified'), view.workCounts?.verified || 0]].map(([label,value]) => h('div',{key:label},h('span',{className:'dsha-note'},label),h('strong',null,value)))),
         h('div', { className: 'dsha-row' }, button(t('workNew'),newWork,'primary'), button(t('workExport'), () => perform(async () => {const result=await rpcCall('work.export',{sessionId});await navigator.clipboard.writeText(result.markdown);setMessage(t('workExported'));}),'ghost',!items.length)),
         h('input', { type:'search',className:'dsha-input','aria-label':t('workSearch'),placeholder:t('workSearch'),value:query,onChange:e=>setQuery(e.target.value) }),
-        h('div', { className: 'dsha-filters', role:'group','aria-label':t('workFilters') }, ['active','review','closed','all'].map(value => h('button',{key:value,type:'button','aria-pressed':filter===value,onClick:()=>setFilter(value)},t(`workFilter_${value}`)))),
+        h('div', { className: 'dsha-filters', role:'group','aria-label':t('workFilters') }, ['active','ready','running','attention','review','closed','all'].map(value => h('button',{key:value,type:'button','aria-pressed':filter===value,onClick:()=>setFilter(value)},t(`workFilter_${value}`)))),
         h('div', { className:'dsha-list' }, filtered.length ? filtered.map(i => h('button', {key:i.id,type:'button',className:'dsha-history-item dsha-work-item',onClick:()=>selectWork(i.id)},
-          h('div',{className:'dsha-history-top'},h('strong',null,t(`workState_${i.status}`)),h('span',null,t(`priority_${i.priority}`))),h('span',{className:'dsha-history-question'},i.title),h('span',{className:'dsha-note'},i.acceptance)))
+          h('div',{className:'dsha-history-top'},h('strong',null,t(`workState_${i.status}`)),h('span',null,t(`priority_${i.priority}`))),h('span',{className:'dsha-history-question'},i.title),h('span',{className:'dsha-note'},t(`workNext_${i.nextAction || 'prepare'}`)),h('span',{className:'dsha-note'},(i.dispatch?.id && i.reports?.at(-1)?.assignmentId===i.dispatch.id ? i.reports.at(-1)?.nextStep : '') || i.acceptance)))
           : h('div', {className:'dsha-empty'},h('strong',null,t('workEmpty')),h('p',{className:'dsha-note'},t('workEmptyHint')))), feedback);
     }
 
@@ -1951,7 +2031,7 @@ window.__ModuleLoader__.load({
       const pending = running[0];
       const unverified = records.filter(needsReview);
       const activeWork = view.workCounts?.active || 0;
-      const awaitingWorkReport = (view.workItems || []).some(item => ['sending','assigned','uncertain','blocked'].includes(item.status));
+      const awaitingWorkReport = (view.workItems || []).some(item => ['sending','assigned','working','uncertain','blocked'].includes(item.status));
       const now = useNow(Boolean(pending));
       useEffect(() => {
         if (!open && !running.length && !awaitingWorkReport) return undefined;
