@@ -22,7 +22,8 @@
 - 主力调用后，答复作为该工具结果直接返回。不会额外通过 followup 重复发送同一回复；普通咨询的 return 设置不触发该路径的二次交付。
 - 计划答复中的 `nextPrompt` 会进入后续交付预览，用户确认后与任务一起传给主力；原始答复没有合法结构时可作为标明待核实的普通参考。
 - 专用提示词区分方案、澄清、复查，要求依据、最小改动、具体补证问题和停止无意义润色。不预设供应商，也不保证某模型实际质量或工具遵循程度。
-- 顾问按 correctness / coverage / evidence 三个维度分别给 0–5 的整数或 null，并附理由。无总分、无平均分，不把未知换成 0；实施证据不足时不应给实施质量分。格式不完整、维度重复、越界或输出截断不会生成有效评分卡，保留原文供查看。
+- 顾问按 correctness / coverage / evidence 三个维度分别给 0–5 的整数或 null，并附理由。无总分、无平均分，不把未知换成 0；实施证据不足时不应给实施质量分。评分卡围栏标签按任意代码块语言匹配（`findReviewCard` 会从尾部扫描所有围栏并逐个解析 JSON + 校验），因此真实模型常用的 ```json 或 ```advisor-review 围栏都能识别；只有末尾确实缺完整评分卡（JSON 不合法、维度重复、越界、围栏未闭合）时才丢弃分数卡并保留原文供查看。
+- 输出被预算截断（`max-tokens`）或超出字符上限时，只要文本里已出现完整评分卡，仍视为有效意见并解析评分（`classifyOutcome` 用 `hasCompleteReview` 兜底）；此时不会误判为 `truncated` 而丢弃分数卡。默认 `maxAdviceTokens` 为 3000，避免真实模型把评分卡截断在 JSON 中间。
 
 ## 用户可见信息
 
@@ -57,6 +58,23 @@ npm ci --prefix scripts/ui
 npm run test:ui
 # 或 DSH_UI_CHROMIUM=/absolute/path/to/chromium npm run test:ui
 ```
+
+## 真实 DSH 双模型联调记录（2026-10-30）
+
+本分支在真实 DSH 桌面环境（desktop profile，host `http://127.0.0.1:63378`）接入双模型做端到端联调，顾问模型为 `deepseek-official/deepseek-flash`。逻辑测试 **169/169** 通过。
+
+**联调步骤（RPC 直连，等价于界面操作）**：`settings.patch`（顾问模型可连）→ `work.create`（用户提出任务）→ `discussion.preview`（展示将共享的材料）→ `discussion.enable`（用户授权，绑定 digest+revision）→ `discussion.ask plan`（梳理方案）→ `discussion.ask clarify`（主力提出真实分歧）→ `discussion.ask review`（主力提交证据、顾问评分）→ `work.list`（查看轮次与状态）。
+
+**真实闭环已验证**：plan / clarify / review 三个阶段都返回 `state=returned` 并解析出评分卡——plan 阶段 `verdict=proceed`、实施质量维度正确地给 `null`（方案阶段无实现可评）；clarify 阶段 `verdict=revise`；review 阶段 `verdict=revise`、三维分数卡（如 correctness=null / coverage=2 / evidence=1）与具体取证要求 `nextPrompt` 都能正确解析。`work.list` 的轮次统计 `plan:returned, clarify:returned, review:returned` 与状态计数一致。
+
+**联调发现并修复的两处真实 bug**：
+
+1. **预算截断误丢评分卡**（`lib/consult.js` `classifyOutcome`）：原实现在 `max-tokens`（预算截断）和 `stop`+`too-long`（超字符上限）两条路径上无条件返回 `truncated`，只要发生截断就丢弃整张评分卡——即使模型已经交付了完整的 ```advisor-review 分数卡。修复：新增 `hasCompleteReview(text)`（委托给 `findReviewCard`），两条路径改为「文本中已含完整评分卡时返回 `returned`，否则才 `truncated`」。
+2. **围栏标签过脆丢评分卡**（`lib/discussion.js` `parseReview` → `findReviewCard`）：原实现在状态为 `returned` 时只匹配 ```advisor-review 围栏标签；真实模型（deepseek-flash）实际把分数卡包在 ```json 围栏里，导致 `review=null`、整卡被丢弃。修复：抽出 `validateReview(value)`（校验 verdict∈{proceed,revise,blocked}、summary≤600、nextPrompt≤2400、scores 恰 3 维且互异、每维 score∈null∪整数 0..5、reason≤600 字），新增导出的 `findReviewCard(text)` 从文本尾部扫描所有代码块围栏（`/```[a-zA-Z0-9-]*\s*\n([\s\S]*?)\n```/g`），逐个 `JSON.parse` + `validateReview`，返回首个有效卡；`parseReview(text,state)` 在 `state==='returned'` 时改为委托 `findReviewCard`。`hasCompleteReview`（consult.js）随之改为 `findReviewCard(text)!==null`，删掉重复的围栏正则。
+
+**配套改动**：`lib/settings.js` 默认 `advanced.maxAdviceTokens` 从 1000 提到 3000（1000 时真实模型常把评分卡截断在 JSON 中间）；`tests/states.test.mjs` 新增 3 条回归测试（`max-tokens` 带完整卡→`returned`、`stop` 超上限带完整卡→`returned`、半写卡无闭合围栏仍 `truncated`）。
+
+**仍未接入/待真实宿主验收**：本轮通过 RPC 直连驱动 host 服务验证了咨询与协作的数据链路；`advisor_work_report` / `advisor_work_context` / `advisor_work_discuss` 三个工具在真实 host 已注册（`advisor_work_context` 已返回真实空队列结构）。但主力 Agent 在被 followup/inject 后**是否真正自主调用这些工具、顾问答复是否进入主力上下文并影响其后续执行**，需在隔离 profile 中用两个真实模型跑一个完整小任务来验证（见下节）。工具等待时限（顾问每轮最多 90 秒）与宿主工具超时的匹配也是联调重点。
 
 ## 真实宿主还需验收
 

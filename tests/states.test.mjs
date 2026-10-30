@@ -36,6 +36,37 @@ test('an answer over the character ceiling is truncated even though the model st
   assert.equal(classifyOutcome({ race: streamed(long), deadlineFired: false, aborted: false }), STATES.truncated)
 })
 
+// Regression: a discussion review ends with a fenced advisor-review scorecard.
+// Real models routinely kept writing prose after the card and hit the output
+// budget, or overshot the character ceiling on a clean stop — either way the
+// finished card was discarded as `truncated` and the caller never saw a score.
+// A *complete* card is a delivered opinion however the stream ended.
+const REVIEW_CARD = '```advisor-review\n' + JSON.stringify({
+  verdict: 'proceed',
+  summary: 'evidence checks out',
+  nextPrompt: 'none needed',
+  scores: [
+    { dimension: 'correctness', score: 4, reason: 'tests pass' },
+    { dimension: 'coverage', score: 3, reason: 'one path untested' },
+    { dimension: 'evidence', score: 5, reason: 'raw output supplied' },
+  ],
+}) + '\n```'
+
+test('a budget-cut answer that already carries a full review card is returned, not truncated', () => {
+  const cut = { finish: { kind: 'max-tokens' }, text: '分析如下。\n' + REVIEW_CARD + '\n还有一段被预算截断的散文' }
+  assert.equal(classifyOutcome({ race: streamed(cut), deadlineFired: false, aborted: false }), STATES.returned)
+})
+
+test('a clean stop over the character ceiling still returns a full review card', () => {
+  const long = { finish: { kind: 'stop' }, text: '很长的分析。'.repeat(900) + '\n' + REVIEW_CARD }
+  assert.equal(classifyOutcome({ race: streamed(long), deadlineFired: false, aborted: false }), STATES.returned)
+})
+
+test('a half-written review card (no closing fence) is still truncated', () => {
+  const half = { finish: { kind: 'max-tokens' }, text: '分析如下。\n```advisor-review\n{"verdict":"proceed","summa' }
+  assert.equal(classifyOutcome({ race: streamed(half), deadlineFired: false, aborted: false }), STATES.truncated)
+})
+
 test('an empty answer is a failure, not an empty review', () => {
   const empty = { finish: { kind: 'stop' }, text: '   ' }
   assert.equal(classifyOutcome({ race: streamed(empty), deadlineFired: false, aborted: false }), STATES.failed)
