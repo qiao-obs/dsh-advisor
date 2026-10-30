@@ -37,6 +37,14 @@ It is not an automatic reviewer and not a gate in a pipeline:
 - **"Don't change anything" is a valid answer.** "No new advice" only means this
   round found nothing new — **it does not mean the task was verified.**
 
+## Direct advisor–executor dialogue (development branch)
+
+Choose the advisor model in settings, then authorize 1–5 exchanges for one task. Ask the advisor for a plan; its executor brief is included in the assignment preview. Once assigned, the working model can call `advisor_work_discuss` to plan, clarify disagreement or review evidence. Replies return directly as tool results, while the user sees both sides in the task workspace.
+
+The panel shows the current role, proposed changes, next instructions, and evidence-backed subjective ratings for correctness, acceptance coverage and evidence quality. Unknown ratings remain null; ratings never establish acceptance. Pause stops new advisor exchanges and local waiting, not work the executor has already begun. Task/model changes require a fresh grant, and both task round limits and the existing consultation budget apply.
+
+This is bounded, executor-initiated tool dialogue, not unattended scheduling. The executor must actually call the tool; the initial assignment still requires user confirmation. Real DSH dual-model execution is not yet validated. See [dialogue implementation and acceptance](docs/dialogue-review.md).
+
 ## Work loop (development branch)
 
 The conversation workspace now supports **opinion → scoped task → confirmed assignment → execution report → recheck → human acceptance**. This is a development-branch feature, not part of the `v0.2.1` tag.
@@ -205,7 +213,7 @@ object spread, and that is how a ceiling silently stops existing.
 
 ## Tools
 
-With profile storage available, the plugin registers `advisor_consult`, `advisor_work_report` and read-only `advisor_work_context`. The context tool restores the current session’s queue or a selected task without dispatching anything. The report tool accepts a user-dispatched task ID, assignment ID, outcome, summary and evidence, and uses the host's actual execution session. Progress reports require a concrete next step; optional checks carry reported passed/failed/not-run states with evidence. The context and report tools cannot dispatch work, call the advisor or mark human acceptance. Without profile storage only the original consultation tool is registered.
+With profile storage available, the plugin registers `advisor_consult`, `advisor_work_report`, read-only `advisor_work_context`, and task-authorized `advisor_work_discuss`. The context tool restores the current session’s queue or a selected task without dispatching anything. The report tool accepts a user-dispatched task ID, assignment ID, outcome, summary and evidence, and uses the host's actual execution session. Progress reports require a concrete next step; optional checks carry reported passed/failed/not-run states with evidence. The context and report tools cannot dispatch work, call the advisor or mark human acceptance. Without profile storage only the original consultation tool is registered.
 
 
 ```jsonc
@@ -290,7 +298,7 @@ Logic tests are offline — no provider, no network, no cost. Main coverage:
 
 | `tests/workflow.test.mjs` | durable tasks, assignment deduplication, timeout/unload, session isolation, reports, human acceptance, revision conflicts, rechecks and action candidates |
 
-**153/153** logic tests and **14/14** Chromium scenarios pass. Browser scenarios run real client components and RPC handlers with a simulated host and fake model. See [continuation validation](docs/continuation-review.md) for reproduction and limitations. The older real-desktop acceptance record in `docs/acceptance-v0.2.md` does not verify this branch's new work loop.
+**166/166** logic tests and **16/16** Chromium scenarios pass. Browser scenarios run real client components and RPC handlers with a simulated host and fake model. See [dialogue validation](docs/dialogue-review.md) for reproduction and limitations. The older real-desktop acceptance record in `docs/acceptance-v0.2.md` does not verify this branch's new work loop.
 
 ## Known limitations
 

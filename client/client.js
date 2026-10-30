@@ -50,6 +50,56 @@ window.__ModuleLoader__.load({
     // ------------------------------------------------------------------ locale
 
     const ZH = {
+      dialogTitle: "顾问 × 执行 Agent",
+      dialogHint: "顾问负责方案、澄清与评价；主力负责实际执行。交流会直接返回给主力，不用复制粘贴。",
+      dialogSetup: "设置本任务协作",
+      dialogRounds: "本次最多交流轮数",
+      dialogPreview: "查看协作授权",
+      dialogEnable: "授权这些轮次",
+      dialogPause: "暂停顾问交流",
+      dialogPlan: "请顾问梳理方案",
+      dialogAsk: "向顾问交流",
+      dialogPhase: "这轮要做什么",
+      dialogMessage: "这轮的问题或要求",
+      dialogEvidence: "补充证据（可选）",
+      dialogSend: "发送这一轮",
+      dialogOwnerAdvisor: "顾问正在思考",
+      dialogOwnerWorker: "主力负责执行",
+      dialogOwnerUser: "等待你决定下一步",
+      dialogPaused: "协作未启用或已暂停",
+      dialogBudget: "本次已用 %s 轮",
+      dialogScoreHint: "顾问主观评价，满分 5 分；未知不按零分计算，评分不代表验收通过。",
+      dialogUnknown: "证据不足，未评分",
+      dialogNext: "顾问给主力的下一步",
+      dialogImpact: "本轮建议改变什么",
+      dialogTranscript: "查看双方交流与证据",
+      dialogNoScore: "本轮没有完整有效的分项评分；保留原始答复。",
+      dialogAdvice: "顾问答复",
+      dialogExecutor: "执行方 / 用户提问",
+      dialogMaterial: "实际发送材料",
+      dialogState_running: "思考中",
+      dialogState_returned: "已回复",
+      dialogState_stale: "已过期，仅供查看",
+      dialogState_paused: "已暂停",
+      dialogState_interrupted: "等待已中断",
+      dialogState_failed: "失败",
+      dialogState_cancelled: "已取消",
+      dialogState_refused: "未发出",
+      dialogState_truncated: "答复不完整",
+      dialogState_no_advice: "无新增意见",
+      dialogState_timed_out: "等待超时",
+      dialogPhase_plan: "制定执行方案",
+      dialogPhase_clarify: "澄清或讨论分歧",
+      dialogPhase_review: "评价执行结果",
+      dialogVerdict_proceed: "建议按当前范围推进",
+      dialogVerdict_revise: "建议修改后再检查",
+      dialogVerdict_blocked: "需要先补证或解阻",
+      dialogDimension_correctness: "正确性",
+      dialogDimension_coverage: "验收覆盖",
+      dialogDimension_evidence: "证据质量",
+      dialogDefaultPlan: "请梳理实现顺序、关键假设和验证方法，给主力一份可直接执行的任务提示词；保持当前范围，缺少信息时具体指出。",
+      dialogPauseHint: "暂停只停止新的顾问交流与本地等待，不终止主力已经开始的操作。",
+
       workState_working: "主力处理中",
       report_in_progress: "进度检查点，尚未完成",
       workNextStep: "下一步",
@@ -419,6 +469,56 @@ window.__ModuleLoader__.load({
     };
 
     const EN = {
+      dialogTitle: "Advisor × Executor",
+      dialogHint: "The advisor plans, clarifies and reviews; the working agent executes. Replies return directly to the agent without copying.",
+      dialogSetup: "Task collaboration",
+      dialogRounds: "Maximum exchanges in this grant",
+      dialogPreview: "Review collaboration permission",
+      dialogEnable: "Authorize these exchanges",
+      dialogPause: "Pause advisor exchanges",
+      dialogPlan: "Ask advisor to plan",
+      dialogAsk: "Talk to advisor",
+      dialogPhase: "Exchange purpose",
+      dialogMessage: "Question or request",
+      dialogEvidence: "Additional evidence (optional)",
+      dialogSend: "Send this exchange",
+      dialogOwnerAdvisor: "Advisor is thinking",
+      dialogOwnerWorker: "Executor owns the work",
+      dialogOwnerUser: "Waiting for your next decision",
+      dialogPaused: "Collaboration disabled or paused",
+      dialogBudget: "Exchanges used: %s",
+      dialogScoreHint: "Subjective advisor ratings out of 5. Unknown is not zero. Ratings do not establish acceptance.",
+      dialogUnknown: "Insufficient evidence to rate",
+      dialogNext: "Advisor’s next instruction",
+      dialogImpact: "Proposed change",
+      dialogTranscript: "Read the exchange and evidence",
+      dialogNoScore: "No complete valid scorecard was returned; the original reply is preserved.",
+      dialogAdvice: "Advisor reply",
+      dialogExecutor: "Executor / user request",
+      dialogMaterial: "Materials actually sent",
+      dialogState_running: "Thinking",
+      dialogState_returned: "Replied",
+      dialogState_stale: "Outdated, for reference",
+      dialogState_paused: "Paused",
+      dialogState_interrupted: "Wait interrupted",
+      dialogState_failed: "Failed",
+      dialogState_cancelled: "Cancelled",
+      dialogState_refused: "Not sent",
+      dialogState_truncated: "Incomplete reply",
+      dialogState_no_advice: "No new advice",
+      dialogState_timed_out: "Wait timed out",
+      dialogPhase_plan: "Plan implementation",
+      dialogPhase_clarify: "Clarify or discuss disagreement",
+      dialogPhase_review: "Review execution evidence",
+      dialogVerdict_proceed: "Proceed within the current scope",
+      dialogVerdict_revise: "Revise and check again",
+      dialogVerdict_blocked: "Resolve missing evidence or blockers",
+      dialogDimension_correctness: "Correctness",
+      dialogDimension_coverage: "Acceptance coverage",
+      dialogDimension_evidence: "Evidence quality",
+      dialogDefaultPlan: "Organize implementation steps, key assumptions and verification into a directly usable executor brief. Stay within scope and identify missing information.",
+      dialogPauseHint: "Pausing stops new advisor exchanges and local waiting, not work the executor has already started.",
+
       workState_working: "In progress",
       report_in_progress: "Progress checkpoint, unfinished",
       workNextStep: "Next step",
@@ -944,6 +1044,15 @@ window.__ModuleLoader__.load({
 .dsha-work-section p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8; }
 .dsha-work-section.acceptance { padding:14px; border-radius:10px; background:var(--ad-soft); border-left:3px solid var(--ad-brand); }
 
+.dsha-discussion { padding:16px; border:1px solid var(--ad-border); border-radius:12px; display:flex; flex-direction:column; gap:12px; }
+.dsha-discussion h3,.dsha-discussion p { margin:0; overflow-wrap:anywhere; white-space:pre-wrap; line-height:1.7; }
+.dsha-dialogue-list { display:flex; flex-direction:column; gap:16px; }
+.dsha-dialogue-round { display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--ad-border); padding-top:16px; font-size:13px; }
+.dsha-score-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.dsha-score { padding:10px; background:var(--ad-soft); border-radius:8px; display:flex; flex-direction:column; gap:8px; }
+.dsha-score > strong { font-size:20px; color:var(--ad-brand); }
+.dsha-score p { font-size:12px; color:var(--ad-muted); }
+@media(max-width:540px) { .dsha-score-grid { grid-template-columns:1fr; } }
 .dsha-checks { display:flex; flex-direction:column; gap:10px; }
 .dsha-check { padding:12px; border:1px solid var(--ad-border); border-radius:8px; display:flex; flex-direction:column; gap:6px; overflow-wrap:anywhere; }
 .dsha-check-status { font-size:12px; color:var(--ad-muted); }
@@ -1810,6 +1919,53 @@ window.__ModuleLoader__.load({
      * screen or reads as a footnote fragment. The header has real width and its
      * ancestors do not scroll, so a panel can hang there without moving anything.
      */
+    const discussionDrafts = new Map();
+    function DiscussionPanel({item,sessionId,t,rpcCall,bridge}) {
+      const draftKey=`${sessionId}:${item.id}`,saved=discussionDrafts.get(draftKey);
+      const [maxRounds,setMaxRounds]=useState(3),[preview,setPreview]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+      const [asking,setAsking]=useState(false);
+      const [phase,setPhase]=useState(saved?.phase || 'clarify'),[message,setMessage]=useState(saved?.message || ''),[evidence,setEvidence]=useState(saved?.evidence || ''),[open,setOpen]=useState(Boolean(saved?.message));
+      useEffect(()=>{discussionDrafts.set(draftKey,{phase,message,evidence});},[draftKey,phase,message,evidence]);
+      const lock=useRef(false),policy=item.discussion,rounds=policy?.rounds || [],thinking=asking||rounds.some(r=>r.state==='running');
+      useEffect(()=>setPreview(null),[item.revision]);
+      async function act(fn) {if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await fn();}catch(err){setError(String(err.message||err));}finally{await bridge.reloadRecords(sessionId);lock.current=false;setBusy(false);}}
+      async function ask(kind,text) {if(lock.current)return;setAsking(true);try{await act(async()=>{const result=await rpcCall('discussion.ask',{sessionId,workItemId:item.id,input:{requestId:uuid(),phase:kind,message:text,evidence}});if(!result.ok)setError(result.message);else {setOpen(false);setMessage('');setEvidence('');}});}finally{setAsking(false);}}
+      const paused=!policy?.enabled,owner=thinking?'dialogOwnerAdvisor':['assigned','working','sending'].includes(item.status)?'dialogOwnerWorker':'dialogOwnerUser';
+      const disabled=busy||thinking||paused||policy.used>=policy.maxRounds||['verified','deferred','rejected','uncertain','sending'].includes(item.status);
+      return h('section',{className:'dsha-discussion'},
+        h('div',{className:'dsha-history-top'},h('h3',null,t('dialogTitle')),h('strong',{className:'dsha-note',role:'status'},t(owner))),
+        h('p',{className:'dsha-note'},t('dialogHint')),
+        policy ? h('p',{className:'dsha-note'},`${policy.target.provider} / ${policy.target.model} · ${t('dialogBudget',`${policy.used}/${policy.maxRounds}`)}${paused?' · '+t('dialogPaused'):''}`) : null,
+        h('div',{className:'dsha-row'},
+          h('button',{type:'button',className:'dsha-btn primary',disabled,onClick:()=>ask('plan',t('dialogDefaultPlan'))},t('dialogPlan')),
+          h('button',{type:'button',className:'dsha-btn',disabled,onClick:()=>setOpen(v=>!v)},t('dialogAsk')),
+          policy?.enabled ? h('button',{type:'button',className:'dsha-btn ghost',onClick:async()=>{try{await rpcCall('discussion.pause',{sessionId,workItemId:item.id});await bridge.reloadRecords(sessionId);}catch(err){setError(String(err.message||err));}}},t('dialogPause')) : null),
+        h('details',{className:'dsha-details',open:!policy?true:undefined},h('summary',null,t('dialogSetup')),
+          h('p',{className:'dsha-note'},t('dialogPauseHint')),
+          h('label',{className:'dsha-field'},t('dialogRounds'),h('select',{className:'dsha-select','aria-label':t('dialogRounds'),value:maxRounds,disabled:busy||thinking,onChange:e=>{setMaxRounds(Number(e.target.value));setPreview(null);}},[1,2,3,4,5].map(n=>h('option',{key:n,value:n},n)))),
+          h('button',{type:'button',className:'dsha-btn',disabled:busy||thinking,onClick:()=>act(async()=>setPreview(await rpcCall('discussion.preview',{sessionId,workItemId:item.id,maxRounds})))},t('dialogPreview')),
+          preview ? h('div',{className:'dsha-block'},h('pre',{className:'dsha-pre'},preview.text),h('button',{type:'button',className:'dsha-btn primary',disabled:busy,onClick:()=>act(async()=>{await rpcCall('discussion.enable',{sessionId,workItemId:item.id,maxRounds:preview.maxRounds,expectedRevision:preview.revision,expectedDigest:preview.digest});setPreview(null);})},t('dialogEnable'))) : null),
+        open ? h('form',{className:'dsha-fields',onSubmit:e=>{e.preventDefault();ask(phase,message);}},
+          h('label',{className:'dsha-field'},t('dialogPhase'),h('select',{className:'dsha-select','aria-label':t('dialogPhase'),value:phase,onChange:e=>setPhase(e.target.value)},['plan','clarify','review'].map(p=>h('option',{key:p,value:p},t(`dialogPhase_${p}`))))),
+          h('label',{className:'dsha-field'},t('dialogMessage'),h('textarea',{className:'dsha-textarea','aria-label':t('dialogMessage'),value:message,required:true,maxLength:1800,onChange:e=>setMessage(e.target.value)})),
+          h('label',{className:'dsha-field'},t('dialogEvidence'),h('textarea',{className:'dsha-textarea','aria-label':t('dialogEvidence'),value:evidence,maxLength:2500,onChange:e=>setEvidence(e.target.value)})),
+          h('button',{type:'submit',className:'dsha-btn primary',disabled},t('dialogSend'))) : null,
+        error ? h('p',{className:'dsha-callout err',role:'alert'},error) : null,
+        rounds.length ? h('div',{className:'dsha-dialogue-list'},rounds.slice().reverse().map((round,index)=>h('article',{key:round.id,className:'dsha-dialogue-round'},
+          h('div',{className:'dsha-history-top'},h('strong',null,`${t(`dialogPhase_${round.phase}`)} · ${t(`dialogState_${round.outdated?'stale':round.state}`)}`),h('time',{className:'dsha-note'},fmtDateTime(round.at))),
+          h('p',{className:'dsha-note'},`${t('dialogExecutor')}：${round.message}`),
+          round.review && round.state==='returned' && !round.outdated ? h(React.Fragment,null,
+            h('strong',null,t(`dialogVerdict_${round.review.verdict}`)),
+            h('p',null,`${t('dialogImpact')}：${round.review.summary}`),
+            h('div',{className:'dsha-score-grid'},round.review.scores.map(score=>h('div',{key:score.dimension,className:'dsha-score'},h('span',null,t(`dialogDimension_${score.dimension}`)),h('strong',null,score.score===null?'—':`${score.score}/5`),h('p',null,score.score===null?`${t('dialogUnknown')} · ${score.reason}`:score.reason)))),
+            h('p',{className:'dsha-note'},t('dialogScoreHint')),h('div',{className:'dsha-callout'},h('strong',null,t('dialogNext')),h('p',null,round.review.nextPrompt)))
+            : round.outdated?h('p',{className:'dsha-note'},t('dialogState_stale')):round.state==='returned'?h('p',{className:'dsha-note'},t('dialogNoScore')):null,
+          round.error ? h('p',{className:'dsha-note'},round.error) : null,
+          h('details',{className:'dsha-details'},h('summary',null,t('dialogTranscript')),
+            h('p',{className:'dsha-advice'},round.evidence),h('strong',null,t('dialogAdvice')),h('p',{className:'dsha-advice'},round.advice || t(`dialogState_${round.outdated?'stale':round.state}`)),
+            round.materialText?h('details',null,h('summary',null,t('dialogMaterial')),h('pre',{className:'dsha-pre'},round.materialText)):null)))) : null);
+    }
+
     const workFormDrafts = new Map();
     function WorkBoard({ t, sessionId, rpcCall, bridge, onConsult, records }) {
       const view = useStore(sessionId);
@@ -1893,6 +2049,7 @@ window.__ModuleLoader__.load({
           h('h3', null, item.title), h('span', { className: 'dsha-note' }, t(`priority_${item.priority}`)),
           h('div', { className: 'dsha-work-section' }, h('strong', null, t('workAction')), h('p', null, item.action)),
           h('div', { className: 'dsha-work-section acceptance' }, h('strong', null, t('workAcceptance')), h('p', null, item.acceptance)),
+          h(DiscussionPanel,{key:item.id,item,sessionId,t,rpcCall,bridge}),
           item.source ? h('details', { className: 'dsha-details' }, h('summary', null, t('workSource')),
             h('p', { className: 'dsha-note' }, item.source.truncated ? t('truncatedNote') : t('workSourceHint')),
             h('p', { className: 'dsha-advice' }, item.source.advice)) : null,
@@ -2031,7 +2188,7 @@ window.__ModuleLoader__.load({
       const pending = running[0];
       const unverified = records.filter(needsReview);
       const activeWork = view.workCounts?.active || 0;
-      const awaitingWorkReport = (view.workItems || []).some(item => ['sending','assigned','working','uncertain','blocked'].includes(item.status));
+      const awaitingWorkReport = (view.workItems || []).some(item => ['sending','assigned','working','uncertain','blocked'].includes(item.status) || item.discussion?.rounds?.some(r=>r.state==='running'));
       const now = useNow(Boolean(pending));
       useEffect(() => {
         if (!open && !running.length && !awaitingWorkReport) return undefined;

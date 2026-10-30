@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dependency } from './dependencies.mjs'
 import { startHarness } from './server.mjs'
+import { createDiscussionTool } from '../../lib/discussion.js'
 const shots = fileURLToPath(new URL('../../docs/ui-review/', import.meta.url))
 mkdirSync(shots, { recursive: true })
 let browser, page, app, words, errors
@@ -470,4 +471,64 @@ test('research and document presets respect preview, and English progress is rea
   await noOverflow()
   await page.locator('.dsha-check.not_run').scrollIntoViewIfNeeded()
   await screenshot('work-checkpoint-mobile')
+})
+
+test('advisor collaboration plans, hands off its brief, then returns scored feedback directly to the executor',async()=>{
+  const review={verdict:'revise',summary:'需要补充取消后重试验证，不扩大实现范围。',nextPrompt:'先补充取消后重试用例，提供真实输出，再决定是否修改锁。',scores:[{dimension:'correctness',score:null,reason:'尚未检查实现。'},{dimension:'coverage',score:2,reason:'取消路径缺少覆盖。'},{dimension:'evidence',score:1,reason:'缺少真实测试输出。'}]}
+  let calls=0
+  app.llm.stream=()=>(async function*(){calls++;yield {type:'text-delta',text:'请先补证，再修改。\n```advisor-review\n'+JSON.stringify(review)+'\n```'};yield {type:'finish',reason:{kind:'stop'}}})()
+  let item=app.host.workflow.create('demo',{requestId:'dialogue-ui',title:'修复取消后重试',action:'只处理提交锁。',acceptance:'取消后重试成功，双击只发一次。',priority:'high'})
+  await open()
+  await page.locator('.dsha-hd').click();await page.locator('.dsha-work-item').click()
+  await field('dialogRounds').selectOption('2')
+  await button('dialogPreview').click();await button('dialogEnable').waitFor()
+  assert.equal(calls,0)
+  await button('dialogEnable').click();await settle('discussion.enable')
+  await button('dialogPlan').click();await settle('discussion.ask')
+  assert.equal(calls,1);assert.equal(app.deliveries.length,0)
+  await page.locator('.dsha-score').first().waitFor()
+  assert.equal(await page.locator('.dsha-score').count(),3)
+  await page.getByText(words.dialogScoreHint,{exact:true}).waitFor()
+  await button('workHandoff').click()
+  assert.ok((await page.locator('.dsha-work-approval .dsha-pre').innerText()).includes(review.nextPrompt))
+  await button('workConfirmHandoff').click();await settle('work.dispatch')
+  item=app.host.workflow.get('demo',item.id)
+  const tool=createDiscussionTool({getService:()=>app.host.discussion})
+  const response=await tool.execute({workItemId:item.id,assignmentId:item.dispatch.id,phase:'review',message:'模拟执行方：已定位锁，请评价还缺什么验证。',evidence:'只有阅读记录，尚未运行测试。'},{agent:{session:{id:'demo'}},callId:'executor-discussion'})
+  assert.equal(response.ok,true);assert.equal(response.round.review.nextPrompt,review.nextPrompt)
+  await button('refresh').click()
+  await page.getByText(words.dialogExecutor+'：模拟执行方：已定位锁，请评价还缺什么验证。',{exact:true}).waitFor()
+  assert.equal(await page.locator('.dsha-score').count(),6)
+  assert.equal(await button('dialogPlan').isDisabled(),true,'Grant exhausted')
+  assert.equal(app.deliveries.length,1);assert.equal(calls,2)
+  assert.equal(app.host.workflow.list('demo').counts.verified,0)
+  await page.setViewportSize({width:1280,height:1100})
+  await page.locator('.dsha-dialogue-round').first().scrollIntoViewIfNeeded()
+  await screenshot('advisor-dialogue')
+  await page.setViewportSize({width:375,height:812})
+  await noOverflow();await screenshot('advisor-dialogue-mobile')
+  app.host.workflow.report('demo',{workItemId:item.id,assignmentId:item.dispatch.id,outcome:'completed',summary:'新的修复报告',evidence:'新的检查结果'},'after-review')
+  await button('refresh').click()
+  await page.getByText(words.dialogPhase_review+' · '+words.dialogState_stale,{exact:true}).waitFor()
+  assert.equal(await page.locator('.dsha-score').count(),3,'Old review scores are hidden; the planning assessment remains scope-specific')
+  assert.equal(await page.getByLabel('主对话输入').inputValue(),'主对话草稿，请勿更改')
+})
+
+test('advisor thinking is visible and can be paused without dispatching executor work',{timeout:20000},async()=>{
+  let release,entered;const began=new Promise(r=>{entered=r})
+  app.llm.stream=()=>(async function*(){entered();await new Promise(r=>{release=r});yield {type:'text-delta',text:'Old answer'};yield {type:'finish',reason:{kind:'stop'}}})()
+  const w=app.host.workflow,item=w.create('demo',{requestId:'pause-dialogue',title:'先梳理方案',action:'只给方案。',acceptance:'明确步骤和检查点。',priority:'normal'})
+  const p=app.host.discussion.policyPreview('demo',item.id,2)
+  app.host.discussion.enable('demo',item.id,{maxRounds:2,expectedRevision:p.revision,expectedDigest:p.digest})
+  await open();await page.locator('.dsha-hd').click();await page.locator('.dsha-work-item').click()
+  await button('dialogAsk').click();await field('dialogMessage').fill('这份草稿关闭面板后应保留。')
+  await page.keyboard.press('Escape');await page.locator('.dsha-hd').click()
+  assert.equal(await field('dialogMessage').inputValue(),'这份草稿关闭面板后应保留。')
+  await button('dialogPlan').click();await began
+  await page.getByText(words.dialogOwnerAdvisor,{exact:true}).waitFor()
+  await button('dialogPause').click();await settle('discussion.pause')
+  release();await settle('discussion.ask')
+  assert.equal(w.get('demo',item.id).discussion.enabled,false)
+  assert.equal(w.get('demo',item.id).discussion.rounds[0].state,'stale')
+  assert.equal(app.deliveries.length,0)
 })

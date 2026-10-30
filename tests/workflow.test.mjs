@@ -159,9 +159,9 @@ test('work report tool is registered only with real profile storage and is dispo
   const {home}=fixture(t),tools=makeFakeTools(),llm=makeFakeLlm()
   const ctx=makeFakeCtx({llm,tools,services:{profileContext:{home}}})
   apply(ctx)
-  assert.ok(tools.get('advisor_work_report'));assert.ok(tools.get('advisor_work_context'))
+  assert.ok(tools.get('advisor_work_report'));assert.ok(tools.get('advisor_work_context'));assert.ok(tools.get('advisor_work_discuss'))
   assert.equal(llm.state.calls,0)
-  ctx._dispose();assert.equal(tools.get('advisor_work_report'),null);assert.equal(tools.get('advisor_work_context'),null)
+  ctx._dispose();assert.equal(tools.get('advisor_work_report'),null);assert.equal(tools.get('advisor_work_context'),null);assert.equal(tools.get('advisor_work_discuss'),null)
 })
 test('work export preserves original findings, model reports and separate human decisions',async t=>{
   const {workflow}=fixture(t),item=await assign(workflow,workflow.create('s',{...DRAFT,consultationId:'source'}))
