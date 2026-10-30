@@ -126,7 +126,7 @@ Keep the following reviewable in your branch and PR:
 - `docs/next-agent-handoff.md`: current branch/PR/commit, completed work, remaining priorities, blockers, reproduction commands, and the next concrete action.
 - Updated installation/configuration guidance and migration notes where behavior changes.
 
-Post a concise completion/progress comment linking these files and your commits in PR #1. Use GitHub as the durable task record, so the next agent can continue without the owner transporting large chat histories. Reports to the owner should be in clear Chinese. Leave the review in draft until its stated acceptance criteria are met; no merge or release is requested.
+Post a concise completion/progress comment linking these files and your commits in PR #1. Use GitHub as the durable task record, so the next agent can continue without the owner transporting large chat histories. Reports to the owner should be in English. Leave the review in draft until its stated acceptance criteria are met; no merge or release is requested.
 
 ## 8. Handoff status
 

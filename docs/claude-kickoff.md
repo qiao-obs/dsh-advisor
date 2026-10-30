@@ -19,7 +19,7 @@ Read the validation boundaries carefully: the latest DSH contributor reports 169
 
 Use a dedicated branch from the latest integration branch and a linked draft PR, following the handoff's coordination instructions. Commit and push reviewable changes; keep findings, validation and next-agent instructions in GitHub. Routine development is already authorized. Do not merge or release yet.
 
-Report to me in Chinese: what you found and changed, what was genuinely tested, how the advisor improved execution, remaining limitations, how I can try it, and the commit/PR links. Start by inspecting the repository and environment, then proceed with implementation.
+Report to me in English: what you found and changed, what was genuinely tested, how the advisor improved execution, remaining limitations, how I can try it, and the commit/PR links. Start by inspecting the repository and environment, then proceed with implementation.
 
 ## 中文译文
 
@@ -40,4 +40,4 @@ Report to me in Chinese: what you found and changed, what was genuinely tested, 
 
 按照交接文档的协作规则，从最新集成分支建立独立开发分支，并创建关联的草稿 PR。提交并推送便于审查的改动，把发现、验证和下一位 Agent 的接续说明留在 GitHub。常规开发已经获得授权。暂时不要合并或发布版本。
 
-请用中文向我汇报：发现和修改了什么，实际验证了什么，顾问如何改善了执行，还有哪些限制，我怎样体验，以及提交和 PR 链接。现在先检查仓库与环境，然后直接推进实现。
+请用英文向我汇报：发现和修改了什么，实际验证了什么，顾问如何改善了执行，还有哪些限制，我怎样体验，以及提交和 PR 链接。现在先检查仓库与环境，然后直接推进实现。
